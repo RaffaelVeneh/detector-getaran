@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Deteksi Gempa Real-time</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Dashboard Deteksi Gempa</h1>
+        <p>Data Real-time dari Sensor Elektronik</p>
+    </header>
+
+    <main>
+        <section class="kpi-cards">
+            <div class="card">
+                <h2>Tingkat Gempa (10s)</h2>
+                <p id="tingkat10-display" class="large-text">--</p>
+                <span class="unit">Hz</span> </div>
+            <div class="card">
+                <h2>Tingkat Gempa (3s)</h2>
+                <p id="tingkat3-display" class="large-text">--</p>
+                <span class="unit">Hz</span> </div>
+            <div class="card">
+                <h2>Avg. Displacement</h2>
+                <p id="avg-displacement-display" class="large-text">--</p>
+                <span class="unit">mm</span>
+            </div>
+        </section>
+
+        <section class="chart-container">
+            <h2>Grafik Displacement Gempa</h2>
+            <div class="chart-wrapper">
+                <canvas id="displacementChart"></canvas>
+            </div>
+        </section>
+
+        <section class="raw-data">
+            <h2>Data Terakhir</h2>
+            <pre id="latest-raw-data">Menunggu data...</pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Tim Deteksi Gempa. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
