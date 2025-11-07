@@ -43,7 +43,7 @@ detector-getaran/
 └── logo-uny.svg         # Logo UNY
 ```
 
-## � Setup Database
+## Setup Database
 
 ### 1. Buat Database
 ```sql
