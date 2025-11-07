@@ -93,12 +93,12 @@ Timestamp, Waktu_Detik, G3T_Displacement_mm, G3T_MaxDisp_mm, G3T_AvgDisp_mm/s, G
 3. **Timer**: Auto-stop setelah 60 detik per sesi
 4. **Average Displacement**: Rata-rata simpangan besar (>2mm) / waktu
 5. Karna diriku pake Laragon, aksesnya jadi lewat sini:
-User:
-http://localhost/detector-getaran/index.html
+User 
+http://localhost/detector-getaran/index.html 
 Admin
-http://localhost/detector-getaran/admin.html
+http://localhost/detector-getaran/admin.html 
 Visualisasi
-http://localhost/detector-getaran/visualisasi.html
+http://localhost/detector-getaran/visualisasi.html 
 
 **Versi**: 2.0.0  
 **Updated**: November 2025
