@@ -1,0 +1,59 @@
+SETUP DATABASE
+
+STEP 1: Buka phpMyAdmin
+-----------------------
+- Akses: http://localhost/phpmyadmin
+- Login dengan:
+  Username: root
+  Password: asya2105
+
+
+STEP 2: Jalankan SQL
+--------------------
+1. Klik tab "SQL" di phpMyAdmin
+2. Copy semua isi file "database.sql"
+3. Paste di SQL Query box
+4. Klik "Go" / "Kirim"
+
+Database "db_detector_getaran" akan otomatis dibuat
+3 Tabel akan dibuat (teams, test_sessions, test_data)
+3 Tim contoh akan diinsert
+
+
+STEP 3: Verifikasi
+------------------
+Setelah SQL berhasil, cek:
+- Database "db_detector_getaran" ada
+- Tabel "teams" ada (3 data)
+- Tabel "test_sessions" ada (kosong)
+- Tabel "test_data" ada (kosong)
+
+
+STRUKTUR DATABASE
+
+1. TABEL: teams
+   - Menyimpan nama tim
+   - Digunakan di admin.html
+   
+2. TABEL: test_sessions
+   - Menyimpan sesi pengujian
+   - 1 sesi = 1 tim + 1 frekuensi (1-5)
+   
+3. TABEL: test_data
+   - Menyimpan history data per detik
+   - Data ini dari data.json yang dibaca frontend
+   - Untuk export CSV
+
+
+CATATAN
+
+data.json → Baca oleh FRONTEND (visualisasi.js) + aing lom paham ini konsep baca data.jsonnya keamana, so aku buat dummy aja dlu, sisanya ntar sesuaikan aja sama anak elektronya buat penamaannya
+MySQL → Simpan HISTORY untuk export CSV
+Grafik & 3 text box → Ambil dari data.json (REALTIME)
+Nama tim → Ambil dari MySQL (STATIC)
+
+Data flow:
+1. Mikrokontroller → Update data.json
+2. Frontend → Baca data.json & tampilkan grafik
+3. Frontend → Simpan ke MySQL setiap detik
+4. User → Export CSV dari MySQL

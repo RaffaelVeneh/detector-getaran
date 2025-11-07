@@ -1,120 +1,179 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const ctx = document.getElementById('displacementChart').getContext('2d');
-    const displacementChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Displacement (mm)',
-                data: [],
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderWidth: 2,
-                pointRadius: 1,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 0
-            },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'second',
-                        displayFormats: {
-                            second: 'HH:mm:ss'
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Waktu'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Displacement (mm)'
-                    },
-                    min: -10, 
-                    max: 10,
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true
-                },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                }
-            }
-        }
-    });
+// ===== SCRIPT.JS - Halaman Utama (User) =====
 
-    function updateDashboard(data) {
+document.addEventListener('DOMContentLoaded', () => {
+    loadTeams();
+    setupEventListeners();
+});
+
+// Load daftar tim
+async function loadTeams() {
+    try {
+        const response = await fetch('api_teams.php?action=get_all');
+        const teams = await response.json();
         
-        if (!data || data.length === 0) {
-            document.getElementById('latest-raw-data').textContent = "Menunggu data masuk ke database...";
-            displacementChart.data.datasets[0].data = [];
-            displacementChart.update(); 
+        const teamsList = document.getElementById('teamsList');
+        const modalTeamsList = document.getElementById('modalTeamsList');
+        const exportTeamsList = document.getElementById('exportTeamsList');
+        
+        if (teams.length === 0) {
+            teamsList.innerHTML = '<div class="loading">Belum ada tim terdaftar. Silakan hubungi admin.</div>';
+            modalTeamsList.innerHTML = '<div class="loading">Belum ada tim terdaftar.</div>';
+            exportTeamsList.innerHTML = '<div class="loading">Belum ada tim terdaftar.</div>';
             return;
         }
-
-        const latestData = data[0];
-
-        document.getElementById('tingkat10-display').textContent = (latestData.tingkat_10 !== null) ? parseFloat(latestData.tingkat_10).toFixed(2) : '--';
-        document.getElementById('tingkat3-display').textContent = (latestData.tingkat_3 !== null) ? parseFloat(latestData.tingkat_3).toFixed(2) : '--';
-        document.getElementById('avg-displacement-display').textContent = (latestData.average_displacement !== null) ? parseFloat(latestData.average_displacement).toFixed(2) : '--';
         
-        const avgDispElement = document.getElementById('avg-displacement-display');
-        if (Math.abs(parseFloat(latestData.average_displacement)) > 5) {
-            avgDispElement.style.color = '#e74c3c';
-        } else {
-            avgDispElement.style.color = '#3498db';
-        }
-
-        const chartData = data.map(record => ({
-            x: moment(record.waktu), 
-            y: parseFloat(record.displacement)
-        }))
-        .filter(point => !isNaN(point.y) && point.x.isValid())
-        .reverse(); // Dibalik agar urutan waktunya benar
-
-        displacementChart.data.datasets[0].data = chartData;
+        // Tampilkan di grid utama
+        teamsList.innerHTML = teams.map(team => `
+            <div class="team-card" onclick="selectTeamForTest(${team.id}, '${escapeHtml(team.nama_tim)}')">
+                <h4>${escapeHtml(team.nama_tim)}</h4>
+                <p>Klik untuk memulai pengujian</p>
+            </div>
+        `).join('');
         
-        displacementChart.options.scales.y.min = undefined;
-        displacementChart.options.scales.y.max = undefined;
+        // Tampilkan di modal
+        modalTeamsList.innerHTML = teams.map(team => `
+            <div class="modal-team-item" onclick="selectTeamForTest(${team.id}, '${escapeHtml(team.nama_tim)}')">
+                ${escapeHtml(team.nama_tim)}
+            </div>
+        `).join('');
         
-        displacementChart.update(); 
-
-        document.getElementById('latest-raw-data').textContent = JSON.stringify(latestData, null, 2);
+        // Tampilkan di modal export
+        exportTeamsList.innerHTML = teams.map(team => `
+            <div class="modal-team-item" onclick="exportTeamData(${team.id}, '${escapeHtml(team.nama_tim)}')">
+                ${escapeHtml(team.nama_tim)}
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading teams:', error);
+        document.getElementById('teamsList').innerHTML = '<div class="loading">Gagal memuat daftar tim.</div>';
     }
+}
 
-    async function fetchData() {
-        try {
-            const response = await fetch('api_ambil.php'); 
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json(); 
-            updateDashboard(data); 
-
-        } catch (error) {
-            console.error("Gagal mengambil data:", error);
-            document.getElementById('latest-raw-data').textContent = "Gagal terhubung ke server atau API...\n" + error.message;
-            
-            displacementChart.options.scales.y.min = -10;
-            displacementChart.options.scales.y.max = 10;
-            updateDashboard([]); 
+// Setup event listeners
+function setupEventListeners() {
+    // Tombol mulai pengujian
+    document.getElementById('startTestBtn').addEventListener('click', () => {
+        openModal('teamModal');
+    });
+    
+    // Tombol export
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        openModal('exportModal');
+    });
+    
+    // Close modals
+    document.querySelectorAll('.close').forEach(closeBtn => {
+        closeBtn.addEventListener('click', function() {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+    
+    // Close modal saat klik di luar
+    window.addEventListener('click', (event) => {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
         }
+    });
+}
+
+// Buka modal
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+// Pilih tim untuk pengujian
+function selectTeamForTest(teamId, teamName) {
+    localStorage.setItem('selectedTeamId', teamId);
+    localStorage.setItem('selectedTeamName', teamName);
+    window.location.href = 'visualisasi.html';
+}
+
+// Export data tim
+async function exportTeamData(teamId, teamName) {
+    // Tutup modal dulu
+    document.getElementById('exportModal').style.display = 'none';
+    
+    // Tampilkan konfirmasi
+    const confirmation = confirm(`Apakah Anda ingin export data tim "${teamName}" ke dalam bentuk CSV?\n\nData yang akan diexport adalah seluruh sesi pengujian yang sudah dilakukan.`);
+    
+    if (!confirmation) {
+        return; // User cancel
     }
+    
+    try {
+        const response = await fetch(`api_teams.php?action=get_test_data&team_id=${teamId}`);
+        const data = await response.json();
+        
+        if (!data || data.length === 0) {
+            alert(`Tidak ada data pengujian untuk tim "${teamName}".\n\nSilakan lakukan pengujian terlebih dahulu di halaman visualisasi.`);
+            return;
+        }
+        
+        // Buat CSV
+        const csv = convertToCSV(data);
+        downloadCSV(csv, `Data_Uji_${teamName.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+        
+        alert(`✅ Data berhasil diexport!\n\nFile: Data_Uji_${teamName.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+        
+    } catch (error) {
+        console.error('Error exporting data:', error);
+        alert('❌ Gagal mengekspor data. Silakan coba lagi.');
+    }
+}
 
-    fetchData();
-    setInterval(fetchData, 2000); 
+// Konversi data ke CSV
+function convertToCSV(data) {
+    const headers = [
+        'Timestamp',
+        'Waktu_Detik',
+        'G3T_Displacement_mm',
+        'G3T_MaxDisp_mm',
+        'G3T_AvgDisp_mm/s',
+        'G10T_Displacement_mm',
+        'G10T_MaxDisp_mm',
+        'G10T_AvgDisp_mm/s',
+        'Frekuensi_Sesi_Ke'
+    ];
+    
+    let csv = headers.join(',') + '\n';
+    
+    data.forEach(row => {
+        const values = [
+            row.timestamp || '',
+            row.waktu_detik || '0',
+            row.g3t_displacement || '0',
+            row.g3t_max_disp || '0',
+            row.g3t_avg_disp || '0',
+            row.g10t_displacement || '0',
+            row.g10t_max_disp || '0',
+            row.g10t_avg_disp || '0',
+            row.frekuensi_ke || '1'
+        ];
+        csv += values.join(',') + '\n';
+    });
+    
+    return csv;
+}
 
-});
+// Download CSV
+function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Escape HTML untuk keamanan
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
