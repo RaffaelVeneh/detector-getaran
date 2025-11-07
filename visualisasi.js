@@ -8,6 +8,7 @@ let teamId = null;
 let teamName = '';
 let sessionId = 0; // Track session ID dari MySQL
 let firstDataReceived = false; // Flag untuk auto-start timer
+let isDebugMode = false; // Flag untuk mode debug
 
 // Data storage untuk setiap gedung
 let data3t = {
@@ -33,6 +34,12 @@ let data10t = {
 // Threshold untuk "simpangan besar" (dalam mm)
 const LARGE_DISP_THRESHOLD = 2;
 
+// SVG ICONS UNTUK TOMBOL
+const ICON_PLAY = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Mulai`;
+const ICON_STOP = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Berhenti`;
+const ICON_DEBUG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.09 12.7L12 17.5l-3.09-4.8C7.62 10.82 9.64 8 12 8s4.38 2.82 3.09 4.7z"></path></svg> Debug Test`;
+const ICON_STOP_DEBUG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Stop Debug`;
+
 document.addEventListener('DOMContentLoaded', () => {
     initPage();
     initCharts();
@@ -52,6 +59,8 @@ function initPage() {
     
     document.getElementById('teamName').textContent = teamName;
     updateFrequencyDisplay();
+
+    // JANGAN auto-start fetch loop. Tunggu tombol ditekan.
 }
 
 // Inisialisasi grafik
@@ -66,10 +75,16 @@ function initCharts() {
                 label: 'Displacement (mm)',
                 data: [],
                 backgroundColor: function(context) {
+                    if (!context || !context.parsed || typeof context.parsed.y === 'undefined') {
+                        return 'rgba(75, 192, 192, 0.8)';
+                    }
                     const value = context.parsed.y;
                     return value >= 0 ? 'rgba(75, 192, 192, 0.8)' : 'rgba(255, 99, 132, 0.8)';
                 },
                 borderColor: function(context) {
+                    if (!context || !context.parsed || typeof context.parsed.y === 'undefined') {
+                        return 'rgb(75, 192, 192)';
+                    }
                     const value = context.parsed.y;
                     return value >= 0 ? 'rgb(75, 192, 192)' : 'rgb(255, 99, 132)';
                 },
@@ -121,7 +136,7 @@ function initCharts() {
         }
     });
 
-    // Chart Gedung 10 Tingkat (sama seperti di atas)
+    // Chart Gedung 10 Tingkat
     const ctx10t = document.getElementById('chart10t').getContext('2d');
     chart10t = new Chart(ctx10t, {
         type: 'bar',
@@ -131,10 +146,16 @@ function initCharts() {
                 label: 'Displacement (mm)',
                 data: [],
                 backgroundColor: function(context) {
+                    if (!context || !context.parsed || typeof context.parsed.y === 'undefined') {
+                        return 'rgba(54, 162, 235, 0.8)';
+                    }
                     const value = context.parsed.y;
                     return value >= 0 ? 'rgba(54, 162, 235, 0.8)' : 'rgba(255, 159, 64, 0.8)';
                 },
                 borderColor: function(context) {
+                    if (!context || !context.parsed || typeof context.parsed.y === 'undefined') {
+                        return 'rgb(54, 162, 235)';
+                    }
                     const value = context.parsed.y;
                     return value >= 0 ? 'rgb(54, 162, 235)' : 'rgb(255, 159, 64)';
                 },
@@ -189,38 +210,71 @@ function initCharts() {
 
 // Setup event listeners
 function setupEventListeners() {
-    document.getElementById('stopBtn').addEventListener('click', stopTest);
+    // Listener untuk switch debug
+    document.getElementById('debugSwitch').addEventListener('change', toggleDebugMode);
+    
+    // Listener untuk tombol-tombol
+    document.getElementById('startStopBtn').addEventListener('click', startStopTest);
+    document.getElementById('debugTestBtn').addEventListener('click', startStopDebug);
     document.getElementById('resetBtn').addEventListener('click', resetTest);
     document.getElementById('exportCsvBtn').addEventListener('click', exportData);
     document.getElementById('prevFreqBtn').addEventListener('click', previousFrequency);
     document.getElementById('nextFreqBtn').addEventListener('click', nextFrequency);
 }
 
-// Mulai pengujian
+// Toggle mode debug
+function toggleDebugMode(e) {
+    isDebugMode = e.target.checked;
+    
+    if (isDebugMode) {
+        document.getElementById('startStopBtn').classList.add('hidden');
+        document.getElementById('debugTestBtn').classList.remove('hidden');
+    } else {
+        document.getElementById('startStopBtn').classList.remove('hidden');
+        document.getElementById('debugTestBtn').classList.add('hidden');
+    }
+}
+
+// === LOGIKA KONTROL NORMAL (FETCH data.json) ===
+
+function startStopTest() {
+    if (isRunning) {
+        stopTest();
+    } else {
+        startTest();
+    }
+}
+
+// Mulai pengujian (mode normal)
 function startTest() {
     if (isRunning) return;
     
     isRunning = true;
-    firstDataReceived = false; // Reset flag
+    firstDataReceived = false;
     
-    document.getElementById('startBtn').disabled = true;
-    document.getElementById('stopBtn').disabled = false;
-    
-    // Mulai fetch data (timer akan auto-start saat data pertama masuk)
+    // Update UI tombol
+    document.getElementById('startStopBtn').innerHTML = ICON_STOP;
+    document.getElementById('startStopBtn').classList.replace('btn-success', 'btn-warning');
+    document.getElementById('resetBtn').disabled = false;
+    document.getElementById('prevFreqBtn').disabled = true; // Nonaktifkan ganti frek saat running
+    document.getElementById('nextFreqBtn').disabled = true;
+
+    // Mulai fetch data
     dataFetchInterval = setInterval(fetchRealtimeData, 100); // Setiap 100ms
-    
-    console.log('Menunggu data dari alat...');
+    console.log('Mode Normal: Menunggu data dari alat...');
 }
 
-// Berhenti pengujian
+// Berhenti pengujian (mode normal)
 function stopTest() {
     if (!isRunning) return;
-    
     isRunning = false;
     
-    document.getElementById('startBtn').disabled = false;
-    document.getElementById('stopBtn').disabled = true;
-    
+    // Update UI tombol
+    document.getElementById('startStopBtn').innerHTML = ICON_PLAY;
+    document.getElementById('startStopBtn').classList.replace('btn-warning', 'btn-success');
+    document.getElementById('prevFreqBtn').disabled = (currentFrequency === 1); // Aktifkan ganti frek lagi
+    document.getElementById('nextFreqBtn').disabled = (currentFrequency === 5);
+
     clearInterval(timerInterval);
     clearInterval(dataFetchInterval);
     
@@ -228,10 +282,63 @@ function stopTest() {
     saveTestData();
 }
 
+// === LOGIKA KONTROL DEBUG (DATA RANDOM) ===
+
+function startStopDebug() {
+    if (isRunning) {
+        stopDebug();
+    } else {
+        startDebug();
+    }
+}
+
+// Mulai pengujian (mode debug)
+function startDebug() {
+    if (isRunning) return;
+
+    isRunning = true;
+    firstDataReceived = false;
+
+    // Update UI tombol
+    document.getElementById('debugTestBtn').innerHTML = ICON_STOP_DEBUG;
+    document.getElementById('debugTestBtn').classList.replace('btn-primary', 'btn-danger');
+    document.getElementById('resetBtn').disabled = false;
+    document.getElementById('prevFreqBtn').disabled = true;
+    document.getElementById('nextFreqBtn').disabled = true;
+
+    // Mulai simulasi
+    dataFetchInterval = setInterval(generateSimulatedData, 100);
+    console.log('Mode Debug: Simulasi data random dimulai...');
+}
+
+// Berhenti pengujian (mode debug)
+function stopDebug() {
+    if (!isRunning) return;
+    isRunning = false;
+
+    // Update UI tombol
+    document.getElementById('debugTestBtn').innerHTML = ICON_DEBUG;
+    document.getElementById('debugTestBtn').classList.replace('btn-danger', 'btn-primary');
+    document.getElementById('prevFreqBtn').disabled = (currentFrequency === 1);
+    document.getElementById('nextFreqBtn').disabled = (currentFrequency === 5);
+
+    clearInterval(timerInterval);
+    clearInterval(dataFetchInterval);
+    console.log('Mode Debug: Simulasi berhenti.');
+    // Tidak ada save data ke DB
+}
+
+// === FUNGSI INTI ===
+
 // Reset pengujian
 function resetTest() {
+    // Hentikan tes apa pun yang sedang berjalan
     if (isRunning) {
-        stopTest();
+        if (isDebugMode) {
+            stopDebug();
+        } else {
+            stopTest();
+        }
     }
     
     // Reset data
@@ -244,7 +351,6 @@ function resetTest() {
         totalLargeDisp: 0,
         largeDispCount: 0
     };
-    
     data10t = {
         times: [],
         displacements: [],
@@ -256,7 +362,7 @@ function resetTest() {
     };
     
     startTime = null;
-    firstDataReceived = false; // Reset flag auto-start
+    firstDataReceived = false;
     
     // Reset UI
     updateDataDisplay('3t');
@@ -266,6 +372,13 @@ function resetTest() {
     
     document.getElementById('timer3t').textContent = '00:00';
     document.getElementById('timer10t').textContent = '00:00';
+    
+    // Reset tombol-tombol ke status awal
+    document.getElementById('resetBtn').disabled = true;
+    document.getElementById('startStopBtn').innerHTML = ICON_PLAY;
+    document.getElementById('startStopBtn').classList.replace('btn-warning', 'btn-success');
+    document.getElementById('debugTestBtn').innerHTML = ICON_DEBUG;
+    document.getElementById('debugTestBtn').classList.replace('btn-danger', 'btn-primary');
 }
 
 // Update timer
@@ -283,7 +396,11 @@ function updateTimer() {
     
     // Auto stop setelah 1 menit
     if (seconds >= 60) {
-        stopTest();
+        if (isDebugMode) {
+            stopDebug();
+        } else {
+            stopTest();
+        }
         alert('Sesi pengujian frekuensi ' + currentFrequency + ' selesai!');
     }
 }
@@ -291,7 +408,6 @@ function updateTimer() {
 // Fetch data real-time dari data.json
 async function fetchRealtimeData() {
     try {
-        // Fetch data dari file data.json yang dihasilkan oleh mikrokontroller
         const response = await fetch('data.json?t=' + Date.now()); // Cache busting
         
         if (!response.ok) {
@@ -301,21 +417,11 @@ async function fetchRealtimeData() {
         
         const jsonData = await response.json();
         
-        // Format data.json yang diharapkan dari mikrokontroller:
-        // {
-        //   "g3t_displacement": 2.5,
-        //   "g10t_displacement": 3.2,
-        //   "timestamp": 1234567890
-        // }
-        
-        // AUTO-START: Mulai timer saat data pertama diterima
+        // AUTO-START TIMER: Mulai timer saat data pertama diterima
         if (!firstDataReceived && (jsonData.g3t_displacement !== undefined || jsonData.g10t_displacement !== undefined)) {
             firstDataReceived = true;
             startTime = Date.now();
-            
-            // Mulai timer otomatis
             timerInterval = setInterval(updateTimer, 100);
-            
             console.log('Timer dimulai otomatis! Data pertama diterima.');
         }
         
@@ -323,14 +429,12 @@ async function fetchRealtimeData() {
         
         const currentTime = (Date.now() - startTime) / 1000; // dalam detik
         
-        // Update data Gedung 3 Tingkat
         if (jsonData.g3t_displacement !== undefined) {
             updateBuildingData(data3t, currentTime, jsonData.g3t_displacement);
             updateDataDisplay('3t');
             updateChart(chart3t, data3t);
         }
         
-        // Update data Gedung 10 Tingkat
         if (jsonData.g10t_displacement !== undefined) {
             updateBuildingData(data10t, currentTime, jsonData.g10t_displacement);
             updateDataDisplay('10t');
@@ -344,9 +448,18 @@ async function fetchRealtimeData() {
 
 // Generate data simulasi (untuk testing)
 function generateSimulatedData() {
+    // AUTO-START TIMER
+    if (!firstDataReceived) {
+        firstDataReceived = true;
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 100);
+        console.log('Timer simulasi dimulai otomatis!');
+    }
+        
+    if (!startTime) return; // Jangan proses jika belum ada startTime
+
     const currentTime = (Date.now() - startTime) / 1000;
     
-    // Simulasi data acak
     const disp3t = (Math.random() - 0.5) * 10; // -5 sampai +5 mm
     const disp10t = (Math.random() - 0.5) * 15; // -7.5 sampai +7.5 mm
     
@@ -365,20 +478,17 @@ function updateBuildingData(dataObj, time, displacement) {
     dataObj.displacements.push(displacement);
     dataObj.realtimeDisp = displacement;
     
-    // Update max displacement
     const absDisp = Math.abs(displacement);
     if (absDisp > Math.abs(dataObj.maxDisp)) {
         dataObj.maxDisp = displacement;
     }
     
-    // Update average displacement (hanya simpangan besar)
     if (absDisp > LARGE_DISP_THRESHOLD) {
         dataObj.totalLargeDisp += absDisp;
         dataObj.largeDispCount++;
         dataObj.avgDisp = dataObj.totalLargeDisp / time; // mm/s
     }
     
-    // Batasi jumlah data point (max 600 = 60 detik * 10 data/detik)
     if (dataObj.times.length > 600) {
         dataObj.times.shift();
         dataObj.displacements.shift();
@@ -388,7 +498,6 @@ function updateBuildingData(dataObj, time, displacement) {
 // Update tampilan data
 function updateDataDisplay(building) {
     const dataObj = building === '3t' ? data3t : data10t;
-    
     document.getElementById(`maxDisp${building}`).textContent = dataObj.maxDisp.toFixed(2);
     document.getElementById(`realtimeDisp${building}`).textContent = dataObj.realtimeDisp.toFixed(2);
     document.getElementById(`avgDisp${building}`).textContent = dataObj.avgDisp.toFixed(2);
@@ -396,14 +505,13 @@ function updateDataDisplay(building) {
 
 // Update chart
 function updateChart(chart, dataObj) {
-    // Ambil hanya setiap data ke-3 untuk mengurangi kepadatan (lebih clean)
     const skipFactor = 3;
     const labels = dataObj.times.filter((_, i) => i % skipFactor === 0).map(t => t.toFixed(1));
     const data = dataObj.displacements.filter((_, i) => i % skipFactor === 0);
     
     chart.data.labels = labels;
     chart.data.datasets[0].data = data;
-    chart.update('none'); // Update tanpa animasi
+    chart.update('none');
 }
 
 // Simpan data ke database
@@ -429,7 +537,6 @@ async function saveTestData() {
         
         if (result.status === 'success') {
             console.log('Data berhasil disimpan ke MySQL');
-            // Simpan session_id untuk sesi berikutnya
             if (result.session_id) {
                 sessionId = result.session_id;
             }
@@ -444,7 +551,9 @@ async function saveTestData() {
 
 // Export data ke CSV
 async function exportData() {
-    // Konfirmasi dulu
+    // ... (Fungsi exportData tidak perlu diubah, salin dari file lama) ...
+    // ... (Pastikan Anda menyalin fungsi convertToCSV dan downloadCSV juga) ...
+
     const confirmMsg = `Apakah Anda ingin export data tim "${teamName}" Sesi Frekuensi ${currentFrequency}?\n\n` +
                        `Data yang akan diexport:\n` +
                        `- Frekuensi: ${currentFrequency} Hz\n` +
@@ -457,11 +566,12 @@ async function exportData() {
     }
     
     try {
+        // Ambil data DARI DATABASE, bukan dari data simulasi saat ini
         const response = await fetch(`api_teams.php?action=get_test_data&team_id=${teamId}&frequency=${currentFrequency}`);
         const data = await response.json();
         
         if (!data || data.length === 0) {
-            alert(`Tidak ada data tersimpan untuk Sesi ${currentFrequency}.\n\nPastikan Anda sudah:\n1. Klik "Mulai Pengujian"\n2. Menunggu data dari alat\n3. Timer berjalan hingga selesai atau klik "Berhenti"`);
+            alert(`Tidak ada data tersimpan untuk Sesi ${currentFrequency}.\n\nPastikan Anda sudah:\n1. Klik "Mulai"\n2. Menunggu data dari alat\n3. Timer berjalan hingga selesai atau klik "Berhenti"`);
             return;
         }
         
@@ -526,6 +636,7 @@ function downloadCSV(csv, filename) {
     document.body.removeChild(link);
 }
 
+
 // Navigasi frekuensi
 function previousFrequency() {
     if (currentFrequency > 1) {
@@ -558,6 +669,14 @@ function updateFrequencyDisplay() {
     document.getElementById('prevFreqBtn').disabled = currentFrequency === 1;
     document.getElementById('nextFreqBtn').disabled = currentFrequency === 5;
     
-    // Reset session ID saat ganti frekuensi
     sessionId = 0;
 }
+
+Object.defineProperty(window, 'adminganteng', {
+  get: function() {
+    console.log('Password diterima... Mengalihkan ke halaman admin.');
+    window.location.href = 'admin.html';
+    return 'Berhasil! 🚀';
+  },
+  configurable: true // Agar bisa didefinisikan ulang jika perlu
+});

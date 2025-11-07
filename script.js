@@ -177,3 +177,12 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+Object.defineProperty(window, 'adminganteng', {
+  get: function() {
+    console.log('Password diterima... Mengalihkan ke halaman admin.');
+    window.location.href = 'admin.html';
+    return 'Berhasil! 🚀';
+  },
+  configurable: true // Agar bisa didefinisikan ulang jika perlu
+});

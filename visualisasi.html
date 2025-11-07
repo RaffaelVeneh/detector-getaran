@@ -148,16 +148,32 @@
         </section>
 
         <!-- Control Buttons -->
+        <section class="debug-controls">
+            <div class="debug-switch-container">
+                <input type="checkbox" id="debugSwitch" class="debug-switch">
+                <label for="debugSwitch">
+                    <div class="switch-toggle"></div>
+                </label>
+                <p>Aktifkan untuk mengganti tombol "Mulai" dengan "Debug Test" (data random).</p>
+            </div>
+        </section>
+
         <section class="control-section">
-            <!-- Start button removed: timer now auto-starts when first data arrives -->
-            <button class="btn btn-warning" id="stopBtn" disabled>
+            <button class="btn btn-success" id="startStopBtn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="6" y="4" width="4" height="16"></rect>
-                    <rect x="14" y="4" width="4" height="16"></rect>
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
-                Berhenti
+                Mulai
             </button>
-            <button class="btn btn-danger" id="resetBtn">
+            
+            <button class="btn btn-primary hidden" id="debugTestBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15.09 12.7L12 17.5l-3.09-4.8C7.62 10.82 9.64 8 12 8s4.38 2.82 3.09 4.7z"></path>
+                </svg>
+                Debug Test
+            </button>
+
+            <button class="btn btn-danger" id="resetBtn" disabled>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="1 4 1 10 7 10"></polyline>
                     <polyline points="23 20 23 14 17 14"></polyline>
@@ -165,6 +181,7 @@
                 </svg>
                 Reset
             </button>
+            
             <button class="btn btn-primary" id="exportCsvBtn">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
