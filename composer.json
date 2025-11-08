@@ -1,0 +1,17 @@
+{
+    "name": "detector-getaran/websocket-server",
+    "description": "WebSocket server untuk real-time detector getaran",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "cboden/ratchet": "^0.4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "DetectorGetaran\\": "src/"
+        }
+    },
+    "scripts": {
+        "start-websocket": "php websocket_server.php"
+    }
+}

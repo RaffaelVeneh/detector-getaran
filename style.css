@@ -803,3 +803,625 @@ footer {
 .hidden {
     display: none !important;
 }
+
+/* ===== ADMIN & TIM PAGES - NEW COMPONENTS ===== */
+
+/* Connection Status */
+.connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.status-dot.connecting {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
+.status-dot.disconnected {
+    background: #64748b;
+    animation: none;
+}
+
+.status-dot.error {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Session Info Bar (Tim Pages) */
+.session-info-bar {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.session-info-item {
+    text-align: center;
+}
+
+.session-info-item label {
+    display: block;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.session-info-item span {
+    display: block;
+    color: #1e40af;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.timer-display-session {
+    background: #eff6ff;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e40af;
+}
+
+/* Timer Control Section (Admin) */
+.timer-control-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.timer-control-section h3 {
+    color: #1e40af;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 0.5rem;
+}
+
+.timer-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.timer-display-admin {
+    background: #f8f9fa;
+    padding: 1.5rem 3rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.timer-display-admin .timer-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #1e40af;
+    font-family: 'Courier New', monospace;
+}
+
+.timer-display-admin .timer-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+.timer-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.frequency-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.frequency-selector label {
+    font-weight: 600;
+    color: #333;
+}
+
+.frequency-selector select {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e40af;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.frequency-selector select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Stats Table Section (Admin) */
+.stats-table-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.stats-table-section h3 {
+    color: #1e40af;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 0.5rem;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stats-table thead {
+    background: #1e40af;
+    color: white;
+}
+
+.stats-table th,
+.stats-table td {
+    padding: 1rem;
+    text-align: center;
+}
+
+.stats-table th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.stats-table tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.2s ease;
+}
+
+.stats-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.stats-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Graphs Section */
+.graphs-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.graphs-section h3 {
+    color: #1e40af;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 0.5rem;
+}
+
+.chart-container-admin {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    height: 500px;
+    margin-bottom: 1.5rem;
+}
+
+.chart-container-admin canvas {
+    max-height: 100%;
+}
+
+/* Frequency Tabs (Tim Pages) */
+.frequency-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.freq-tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid #3b82f6;
+    color: #1e40af;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.freq-tab-btn:hover {
+    background: #eff6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.freq-tab-btn.active {
+    background: #1e40af;
+    color: white;
+}
+
+/* Graph Card (Tim Pages) */
+.graph-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.graph-card h3 {
+    color: #1e40af;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stats-display {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 120px;
+}
+
+.stat-item label {
+    display: block;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item .stat-value {
+    display: block;
+    color: #1e40af;
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.chart-container-tim {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 12px;
+    height: 400px;
+}
+
+.chart-container-tim canvas {
+    max-height: 100%;
+}
+
+/* Export Section (Tim Pages) */
+.export-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.export-section h3 {
+    color: #1e40af;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Legend Item (Admin Stacked Charts) */
+.legend-container {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.legend-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Responsive untuk komponen baru */
+@media (max-width: 768px) {
+    .timer-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .timer-display-admin .timer-value {
+        font-size: 2rem;
+    }
+
+    .session-info-bar {
+        flex-direction: column;
+    }
+
+    .frequency-tabs {
+        flex-direction: column;
+    }
+
+    .freq-tab-btn {
+        width: 100%;
+    }
+
+    .stats-display {
+        flex-direction: column;
+    }
+
+    .chart-container-admin,
+    .chart-container-tim {
+        height: 300px;
+    }
+
+    .export-buttons {
+        flex-direction: column;
+    }
+
+    .export-buttons .btn {
+        width: 100%;
+    }
+}
+
+/* ===== V3 MULTI-FREQUENCY LAYOUT ===== */
+.graphs-section-multi {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.graphs-section-multi h3 {
+    color: #1e40af;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.graph-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.multi-freq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.freq-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 300px;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.freq-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1e40af;
+    text-align: center;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 6px;
+    border: 2px solid #1e40af;
+}
+
+.chart-container-multi {
+    height: 250px;
+    position: relative;
+}
+
+.chart-container-multi-user {
+    height: 200px;
+    position: relative;
+}
+
+.freq-stats {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-around;
+    padding: 0.5rem;
+}
+
+.freq-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.freq-stat-item .stat-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.freq-stat-item .stat-value {
+    font-size: 1.1rem;
+    color: #1e40af;
+    font-weight: 700;
+}
+
+.session-info-bar {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.session-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.session-info-item label {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.session-info-item span {
+    font-size: 1.3rem;
+    color: #1e40af;
+    font-weight: 700;
+}
+
+.timer-display-session {
+    font-family: 'Courier New', monospace;
+    font-size: 1.8rem !important;
+    color: #059669 !important;
+}
+
+.status-recording {
+    color: #dc2626 !important;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-stopped {
+    color: #6b7280 !important;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive adjustments for multi-freq layout */
+@media (max-width: 1200px) {
+    .freq-row {
+        grid-template-columns: 70px 1fr 250px;
+        gap: 0.75rem;
+    }
+    
+    .freq-stats {
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .freq-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .freq-label {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+    
+    .chart-container-multi {
+        height: 200px;
+    }
+    
+    .chart-container-multi-user {
+        height: 180px;
+    }
+    
+    .freq-stats {
+        justify-content: space-between;
+    }
+    
+    .session-info-bar {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
