@@ -1,5 +1,5 @@
 // ============================================
-// TIM CLIENT V3 - INDIVIDUAL TEAM 5-FREQUENCY VIEW
+// TIM CLIENT V3 - PERBAIKAN (SINKRON DENGAN WEBSOCKET_SERVER.PHP)
 // ============================================
 
 // Data structure for this team's 5 frequencies
@@ -17,12 +17,14 @@ let chartsLantai10 = {};
 
 // WebSocket
 let ws = null;
+let reconnectInterval = null;
 
 // Session state
 let currentFrequency = null;
 let sessionActive = false;
 let sessionId = null;
 let timerInterval = null;
+let remainingSeconds = 60;
 let timerSeconds = 0;
 
 // Color for this team (blue theme)
@@ -36,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initCharts();
     connectWebSocket();
     setupExportButtons();
+    // Panggil loadInitialData untuk mengisi data historis jika server WS offline
+    loadInitialData();
 });
 
 // ============================================
@@ -44,6 +48,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initCharts() {
     const frequencies = ['1.5', '2.5', '3.5', '4.5', '5.5'];
+    
+    // Opsi umum untuk semua chart
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        scales: {
+            y: {
+                beginAtZero: false,
+                title: {
+                    display: true,
+                    text: 'Displacement (mm)',
+                    font: { size: 12, weight: 'bold' }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Waktu (detik)',
+                    font: { size: 12 }
+                },
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    maxTicksLimit: 20, // Batasi jumlah label waktu
+                    autoSkip: true
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false, // Sembunyikan legenda default
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return `Displacement: ${context.parsed.y.toFixed(2)} mm`;
+                    }
+                }
+            }
+        }
+    };
     
     // Initialize Lantai 3 charts
     frequencies.forEach(freq => {
@@ -68,55 +118,12 @@ function initCharts() {
                             const value = context.parsed.y;
                             return value >= 0 ? teamColor : 'rgb(255, 99, 132)';
                         },
-                        borderWidth: 2,
-                        barThickness: 8,
-                        maxBarThickness: 12
+                        borderWidth: 1, // Buat bar lebih tipis
+                        barThickness: 3,
+                        maxBarThickness: 6
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'Displacement (mm)',
-                                font: { size: 12, weight: 'bold' }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Waktu (detik)',
-                                font: { size: 12 }
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: { size: 11 }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Displacement: ${context.parsed.y.toFixed(2)} mm`;
-                                }
-                            }
-                        }
-                    }
-                }
+                options: commonOptions
             });
         }
     });
@@ -144,62 +151,19 @@ function initCharts() {
                             const value = context.parsed.y;
                             return value >= 0 ? teamColor : 'rgb(255, 99, 132)';
                         },
-                        borderWidth: 2,
-                        barThickness: 8,
-                        maxBarThickness: 12
+                        borderWidth: 1,
+                        barThickness: 3,
+                        maxBarThickness: 6
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'Displacement (mm)',
-                                font: { size: 12, weight: 'bold' }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Waktu (detik)',
-                                font: { size: 12 }
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: { size: 11 }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Displacement: ${context.parsed.y.toFixed(2)} mm`;
-                                }
-                            }
-                        }
-                    }
-                }
+                options: commonOptions
             });
         }
     });
 }
 
 // ============================================
-// WEBSOCKET CONNECTION
+// WEBSOCKET CONNECTION (FUNGSI UTAMA DIPERBAIKI)
 // ============================================
 
 function connectWebSocket() {
@@ -214,9 +178,14 @@ function connectWebSocket() {
         statusEl.innerHTML = '<span class="status-dot"></span> Connected';
         statusEl.className = 'connection-status connected';
         
-        // Subscribe to this team's data
+        if (reconnectInterval) {
+            clearInterval(reconnectInterval);
+            reconnectInterval = null;
+        }
+        
+        // Minta data tim ini (opsional, loadInitialData() juga melakukan ini via HTTP)
         ws.send(JSON.stringify({
-            type: 'subscribe',
+            action: 'get_team',
             laptop_id: LAPTOP_ID
         }));
     };
@@ -225,26 +194,43 @@ function connectWebSocket() {
         try {
             const message = JSON.parse(event.data);
             
-            switch (message.type) {
-                case 'session_start':
-                    handleSessionStart(message.data);
-                    break;
+            // Logika baru untuk mem-parsing siaran 'new_data' dari server
+            if (message.type === 'new_data' && Array.isArray(message.data)) {
+                
+                // 1. Loop melalui setiap item data dalam array siaran
+                message.data.forEach(item => {
                     
-                case 'session_stop':
-                    handleSessionStop(message.data);
-                    break;
-                    
-                case 'new_data':
-                    // Filter for this team
-                    if (message.laptop_id === LAPTOP_ID) {
-                        handleNewData(message.data);
+                    // 2. Filter hanya data untuk LAPTOP_ID tim ini
+                    if (item.laptop_id === LAPTOP_ID) {
+                        
+                        // 3. Periksa status sesi dari item data
+                        if (item.session_status === 'running' && !sessionActive) {
+                            // Sesi baru saja dimulai
+                            console.log('Sesi terdeteksi: RUNNING');
+                            handleSessionStart(item);
+                        } else if (item.session_status !== 'running' && sessionActive) {
+                            // Sesi baru saja berhenti
+                            console.log('Sesi terdeteksi: STOPPED');
+                            handleSessionStop(item);
+                        }
+                        
+                        // 4. Jika sesi aktif, perbarui timer
+                        if (sessionActive) {
+                            const elapsed = Math.floor(item.relative_time || 0);
+                            remainingSeconds = Math.max(0, 60 - elapsed);
+                        }
+                        
+                        // 5. Kirim data ke fungsi handler grafik
+                        handleNewData(item);
                     }
-                    break;
-                    
-                case 'initial_data':
-                    handleInitialData(message.data);
-                    break;
+                });
+            } 
+            // Tangani data awal (jika server mengirim 'team_data')
+            else if (message.type === 'team_data' && message.laptop_id === LAPTOP_ID) {
+                console.log('Menerima data historis dari WebSocket');
+                handleInitialData(message.data);
             }
+            
         } catch (error) {
             console.error('Error parsing WebSocket message:', error);
         }
@@ -261,61 +247,101 @@ function connectWebSocket() {
         statusEl.innerHTML = '<span class="status-dot"></span> Disconnected';
         statusEl.className = 'connection-status disconnected';
         
-        // Attempt reconnect after 3 seconds
-        setTimeout(connectWebSocket, 3000);
+        // Hentikan timer jika koneksi terputus
+        if (sessionActive) {
+            handleSessionStop({});
+        }
+        
+        // Coba hubungkan kembali
+        if (!reconnectInterval) {
+            reconnectInterval = setTimeout(connectWebSocket, 3000);
+        }
     };
 }
 
 // ============================================
-// SESSION HANDLERS
+// SESSION HANDLERS (DIPERBAIKI)
 // ============================================
 
 function handleSessionStart(data) {
+    if (sessionActive) return; // Already running
+    
     sessionActive = true;
     sessionId = data.session_id;
-    currentFrequency = data.frequency;
-    timerSeconds = 0;
+    currentFrequency = String(data.frequency);
+    
+    // --- LOGIKA SINKRONISASI TIMER BARU ---
+    // relative_time adalah hitungan NAIK (0 -> 60)
+    // remainingSeconds adalah hitungan TURUN (60 -> 0)
+    const elapsed = Math.floor(data.relative_time || 0);
+    remainingSeconds = Math.max(0, 60 - elapsed); // Pastikan tidak negatif
     
     // Update UI
     document.getElementById('currentFrequency').textContent = `${currentFrequency} Hz`;
-    document.getElementById('sessionStatus').textContent = 'Recording';
-    document.getElementById('sessionStatus').className = 'status-recording';
+    const statusEl = document.getElementById('sessionStatus');
+    statusEl.textContent = 'Recording';
+    statusEl.className = 'status-recording';
     
-    // Clear previous data for this frequency
+    // Hapus data frekuensi sebelumnya
     if (dataByFreq[currentFrequency]) {
         dataByFreq[currentFrequency].dataA = [];
         dataByFreq[currentFrequency].dataB = [];
+        dataByFreq[currentFrequency].maxA = 0;
+        dataByFreq[currentFrequency].maxB = 0;
+        dataByFreq[currentFrequency].avgA = 0;
+        dataByFreq[currentFrequency].avgB = 0;
     }
     
-    // Start timer display
+    // Mulai timer display
     startTimerDisplay();
     
-    console.log(`Session started: ${sessionId}, Frequency: ${currentFrequency} Hz`);
+    console.log(`Sesi dimulai: ${sessionId}, Frekuensi: ${currentFrequency} Hz, Sisa Waktu: ${remainingSeconds}s`);
 }
 
+// GANTI FUNGSI INI
 function handleSessionStop(data) {
+    if (!sessionActive) return; // Already stopped
+    
     sessionActive = false;
     
     // Update UI
-    document.getElementById('sessionStatus').textContent = 'Stopped';
-    document.getElementById('sessionStatus').className = 'status-stopped';
+    const statusEl = document.getElementById('sessionStatus');
+    statusEl.textContent = 'Stopped';
+    statusEl.className = 'status-stopped';
     
-    // Stop timer
+    // Hentikan timer
     stopTimerDisplay();
     
-    console.log('Session stopped');
+    // Set timer ke 00:00 saat berhenti
+    remainingSeconds = 0;
+    updateTimerDisplayDOM();
+    
+    console.log('Sesi berhenti');
 }
 
+// GANTI FUNGSI INI
 function startTimerDisplay() {
     if (timerInterval) clearInterval(timerInterval);
     
+    // Update tampilan timer segera dengan waktu yang disinkronkan
+    updateTimerDisplayDOM(); 
+    
     timerInterval = setInterval(() => {
-        timerSeconds++;
-        const minutes = Math.floor(timerSeconds / 60);
-        const seconds = timerSeconds % 60;
-        document.getElementById('timerDisplay').textContent = 
-            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        if (remainingSeconds > 0) {
+            remainingSeconds--;
+        } else {
+            remainingSeconds = 0; // Jaga agar tidak negatif
+        }
+        updateTimerDisplayDOM();
     }, 1000);
+}
+
+// GANTI FUNGSI INI
+function updateTimerDisplayDOM() {
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+    document.getElementById('timerDisplay').textContent = 
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
 function stopTimerDisplay() {
@@ -323,33 +349,39 @@ function stopTimerDisplay() {
         clearInterval(timerInterval);
         timerInterval = null;
     }
+    // Jangan reset timerSeconds, biarkan menunjukkan waktu akhir
 }
 
 // ============================================
-// DATA HANDLERS
+// DATA HANDLERS (DIPERBAIKI)
 // ============================================
 
 function handleInitialData(data) {
-    // Load initial data from database
+    // Fungsi ini untuk memuat data historis (misal dari HTTP fallback)
     if (!data || data.length === 0) return;
     
+    // Hapus data lama
+    Object.keys(dataByFreq).forEach(freq => {
+        dataByFreq[freq].dataA = [];
+        dataByFreq[freq].dataB = [];
+    });
+    
     data.forEach(point => {
-        if (point.laptop_id === LAPTOP_ID) {
-            const freq = String(point.frequency);
-            if (dataByFreq[freq]) {
-                dataByFreq[freq].dataA.push({
-                    time: point.time_seconds,
-                    value: point.displacement_a
-                });
-                dataByFreq[freq].dataB.push({
-                    time: point.time_seconds,
-                    value: point.displacement_b
-                });
-            }
+        const freq = String(point.frequency);
+        if (dataByFreq[freq]) {
+            // Gunakan NAMA FIELD YANG BENAR dari server ('relative_time', 'dista', 'distb')
+            dataByFreq[freq].dataA.push({
+                time: point.relative_time,
+                value: point.dista
+            });
+            dataByFreq[freq].dataB.push({
+                time: point.relative_time,
+                value: point.distb
+            });
         }
     });
     
-    // Update all charts
+    // Update semua chart
     Object.keys(dataByFreq).forEach(freq => {
         updateChart(chartsLantai3[freq], freq, 'A');
         updateChart(chartsLantai10[freq], freq, 'B');
@@ -357,29 +389,31 @@ function handleInitialData(data) {
 }
 
 function handleNewData(data) {
+    // data = 1 item dari array 'new_data'
     if (!data) return;
     
     const freq = String(data.frequency);
     
-    // Add to data structure
+    // Tambahkan ke struktur data
     if (dataByFreq[freq]) {
+        // Gunakan NAMA FIELD YANG BENAR ('relative_time', 'dista', 'distb')
         dataByFreq[freq].dataA.push({
-            time: data.time_seconds,
-            value: data.displacement_a
+            time: data.relative_time,
+            value: data.dista
         });
         dataByFreq[freq].dataB.push({
-            time: data.time_seconds,
-            value: data.displacement_b
+            time: data.relative_time,
+            value: data.distb
         });
         
-        // Update charts for this frequency
+        // Update chart untuk frekuensi ini
         updateChart(chartsLantai3[freq], freq, 'A');
         updateChart(chartsLantai10[freq], freq, 'B');
     }
 }
 
 // ============================================
-// CHART UPDATE
+// CHART UPDATE (DIPERBAIKI)
 // ============================================
 
 function updateChart(chart, frequency, building) {
@@ -388,17 +422,38 @@ function updateChart(chart, frequency, building) {
     const freqData = dataByFreq[frequency];
     const dataPoints = building === 'A' ? freqData.dataA : freqData.dataB;
     
-    if (dataPoints.length === 0) return;
+    if (dataPoints.length === 0) {
+        // Jika tidak ada data, kosongkan chart
+        chart.data.labels = [];
+        chart.data.datasets[0].data = [];
+        chart.update('none');
+        updateStatsDisplay(frequency, building); // Reset statistik ke 0
+        return;
+    }
     
-    // Prepare chart data
-    const labels = dataPoints.map(d => d.time.toFixed(2));
-    const values = dataPoints.map(d => d.value);
+    // Batasi jumlah data di chart (misal 200 poin terakhir) agar tidak lambat
+    const maxDataPoints = 200;
+    const startIndex = Math.max(0, dataPoints.length - maxDataPoints);
+    const chartDataPoints = dataPoints.slice(startIndex);
     
-    // Calculate statistics
-    const maxValue = Math.max(...values.map(Math.abs));
-    const avgValue = values.reduce((sum, v) => sum + Math.abs(v), 0) / values.length;
+    // Siapkan data chart
+    const labels = chartDataPoints.map(d => (d.time || 0).toFixed(1));
+    const values = chartDataPoints.map(d => d.value);
     
-    // Update stored stats
+    // Hitung statistik dari SEMUA data, bukan hanya yang di-chart
+    const allValues = dataPoints.map(d => d.value);
+    const allAbsValues = allValues.map(v => Math.abs(v));
+    
+    const maxValue = allAbsValues.length > 0 ? Math.max(...allAbsValues) : 0;
+    
+    // Logika AVG (mm/s) dari Stored Procedure:
+    // Rata-rata dari simpangan > 2mm / durasi total
+    const largeDisplacements = allAbsValues.filter(v => v > 2);
+    const sumLargeDisplacements = largeDisplacements.reduce((sum, v) => sum + v, 0);
+    const totalDuration = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].time : 1;
+    const avgValue = (totalDuration > 0) ? (sumLargeDisplacements / totalDuration) : 0;
+    
+    // Update statistik yang tersimpan
     if (building === 'A') {
         freqData.maxA = maxValue;
         freqData.avgA = avgValue;
@@ -410,9 +465,9 @@ function updateChart(chart, frequency, building) {
     // Update chart
     chart.data.labels = labels;
     chart.data.datasets[0].data = values;
-    chart.update('none'); // No animation
+    chart.update('none'); // Update tanpa animasi
     
-    // Update stats display
+    // Update tampilan statistik
     updateStatsDisplay(frequency, building);
 }
 
@@ -421,22 +476,35 @@ function updateStatsDisplay(frequency, building) {
     const freqKey = frequency.replace('.', '');
     const buildingKey = building === 'A' ? '3' : '10';
     
-    // Get latest value (realtime)
+    // Dapatkan nilai terbaru (realtime)
     const dataPoints = building === 'A' ? freqData.dataA : freqData.dataB;
-    const latestValue = dataPoints.length > 0 ? Math.abs(dataPoints[dataPoints.length - 1].value) : 0;
     
-    // Update DOM elements
+    // --- AWAL PERBAIKAN ---
+    // Ambil nilai mentah, yang mungkin null atau undefined
+    const rawLatestValue = dataPoints.length > 0 ? dataPoints[dataPoints.length - 1].value : 0;
+    
+    // Paksa nilai menjadi angka yang valid. (null || 0) menjadi 0, (undefined || 0) menjadi 0.
+    const latestValue = parseFloat(rawLatestValue || 0);
+    // --- AKHIR PERBAIKAN ---
+    
+    // Update elemen DOM
     const realtimeEl = document.getElementById(`realtime${buildingKey}_${freqKey}`);
     const maxEl = document.getElementById(`max${buildingKey}_${freqKey}`);
     const avgEl = document.getElementById(`avg${buildingKey}_${freqKey}`);
     
+    // Gunakan nilai yang sudah aman (latestValue)
     if (realtimeEl) realtimeEl.textContent = `${latestValue.toFixed(2)} mm`;
-    if (maxEl) maxEl.textContent = `${(building === 'A' ? freqData.maxA : freqData.maxB).toFixed(2)} mm`;
-    if (avgEl) avgEl.textContent = `${(building === 'A' ? freqData.avgA : freqData.avgB).toFixed(2)} mm/s`;
+    
+    // Kita juga harus mengamankan statistik max/avg
+    const maxVal = parseFloat(building === 'A' ? freqData.maxA : freqData.maxB || 0);
+    const avgVal = parseFloat(building === 'A' ? freqData.avgA : freqData.avgB || 0);
+
+    if (maxEl) maxEl.textContent = `${maxVal.toFixed(2)} mm`;
+    if (avgEl) avgEl.textContent = `${avgVal.toFixed(2)} mm/s`;
 }
 
 // ============================================
-// EXPORT FUNCTIONS
+// EXPORT FUNCTIONS (Path API diperbaiki)
 // ============================================
 
 function setupExportButtons() {
@@ -445,52 +513,84 @@ function setupExportButtons() {
 }
 
 async function exportRealtime() {
-    try {
-        const response = await fetch(`/detector-getaran/api/export_realtime.php?laptop_id=${LAPTOP_ID}`);
-        
-        if (!response.ok) throw new Error('Export failed');
-        
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `realtime_${TEAM_NAME}_${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        alert('Export Realtime berhasil!');
-    } catch (error) {
-        console.error('Export error:', error);
-        alert('Export gagal. Lihat console untuk detail.');
-    }
+    // Pastikan path API benar (menggunakan /api/)
+    const url = `/detector-getaran/api/export_realtime.php?laptop_id=${LAPTOP_ID}`;
+    window.open(url, '_blank');
 }
 
 async function exportSession() {
-    if (!sessionId) {
-        alert('Tidak ada sesi aktif untuk diexport.');
-        return;
-    }
-    
+    // Pastikan path API benar (menggunakan /api/)
+    // Kita mungkin tidak memiliki sessionId jika sesi belum dimulai,
+    // jadi kita biarkan API mengambil sesi terakhir berdasarkan laptop_id
+    const url = `/detector-getaran/api/export_session.php?laptop_id=${LAPTOP_ID}`;
+    window.open(url, '_blank');
+}
+
+// ============================================
+// INITIAL DATA LOAD (HTTP FALLBACK)
+// ============================================
+
+async function loadInitialData() {
+    // Ini adalah fallback jika WebSocket gagal atau untuk data historis
     try {
-        const response = await fetch(`/detector-getaran/api/export_session.php?session_id=${sessionId}&laptop_id=${LAPTOP_ID}`);
+        // Path API harus benar (menggunakan /api/ dan tim_X.php)
+        const response = await fetch(`/detector-getaran/api/tim_${LAPTOP_ID}.php`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
         
-        if (!response.ok) throw new Error('Export failed');
-        
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `session_${TEAM_NAME}_${new Date().toISOString().slice(0, 10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        
-        alert('Export Session berhasil!');
+        if (result.status === 'success') {
+            console.log('Memuat data historis via HTTP API');
+            
+            // Proses data historis (data per frekuensi)
+            if (result.data) {
+                Object.keys(result.data).forEach(freq => {
+                    const freqData = result.data[freq];
+                    if (dataByFreq[freq] && freqData.length > 0) {
+                        dataByFreq[freq].dataA = freqData.map(d => ({
+                            time: d.relative_time || 0,
+                            value: d.dista
+                        }));
+                        
+                        dataByFreq[freq].dataB = freqData.map(d => ({
+                            time: d.relative_time || 0,
+                            value: d.distb
+                        }));
+                    }
+                });
+            }
+            
+            // Proses statistik
+            if (result.statistics) {
+                Object.keys(result.statistics).forEach(freq => {
+                    const stats = result.statistics[freq];
+                    if (dataByFreq[freq]) {
+                        dataByFreq[freq].maxA = stats.max_dista || 0;
+                        dataByFreq[freq].maxB = stats.max_distb || 0;
+                        dataByFreq[freq].avgA = stats.avg_dista || 0;
+                        dataByFreq[freq].avgB = stats.avg_distb || 0;
+                    }
+                });
+            }
+            
+            // Update semua chart dengan data historis
+            Object.keys(dataByFreq).forEach(freq => {
+                updateChart(chartsLantai3[freq], freq, 'A');
+                updateChart(chartsLantai10[freq], freq, 'B');
+            });
+            
+            // Periksa apakah ada sesi yang sedang berjalan saat memuat
+            if (result.current_session && result.current_session.status === 'running') {
+                const sessionData = {
+                    ...result.current_session,
+                    session_id: result.current_session.id,
+                    relative_time: result.current_session.elapsed || 0
+                };
+                handleSessionStart(sessionData);
+            }
+        }
     } catch (error) {
-        console.error('Export error:', error);
-        alert('Export gagal. Lihat console untuk detail.');
+        console.error('Error loading initial data via HTTP:', error);
     }
 }

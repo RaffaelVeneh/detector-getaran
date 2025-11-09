@@ -2,7 +2,7 @@
 // ===== KONFIGURASI DATABASE =====
 $servername = "localhost";
 $username = "root";
-$password = "asya2105";
+$password = "";
 $dbname = "db_detector_getaran";
 
 // Buat koneksi

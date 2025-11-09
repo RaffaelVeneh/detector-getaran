@@ -14,77 +14,59 @@
                 <h1 class="nav-title">Detector Getaran Meja Getar</h1>
             </div>
             <div class="nav-right">
-                <a href="index.html" class="nav-link active">Beranda</a>
-                <a href="admin.html" class="nav-link" style="display: none;">Admin</a>
-            </div>
+                </div>
         </div>
     </nav>
 
     <main class="main-content">
         <section class="hero-section">
-            <h2>Selamat Datang di Sistem Uji Getaran Meja Getar</h2>
-            <p>Pilih tim untuk memulai pengujian atau ekspor data hasil uji</p>
-        </section>
-
-        <section class="action-section">
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="startTestBtn">
-                    Mulai Pengujian
-                </button>
-                <button class="btn btn-secondary" id="exportBtn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    Export Data CSV
-                </button>
-            </div>
+            <h2>Sistem Monitoring Real-Time</h2>
+            <p>Silakan pilih tim Anda untuk masuk ke halaman monitor.</p>
         </section>
 
         <section class="teams-section">
-            <h3>Daftar Tim Tersedia</h3>
-            <div id="teamsList" class="teams-grid">
-                <div class="loading">Memuat daftar tim...</div>
+            <h3>Pilih Halaman Tim</h3>
+            <div class="teams-grid">
+                <a href="tim_1_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 1</h4>
+                    <p>Buka monitor Tim 1</p>
+                </a>
+                <a href="tim_2_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 2</h4>
+                    <p>Buka monitor Tim 2</p>
+                </a>
+                <a href="tim_3_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 3</h4>
+                    <p>Buka monitor Tim 3</p>
+                </a>
+                <a href="tim_4_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 4</h4>
+                    <p>Buka monitor Tim 4</p>
+                </a>
+                
+                <a href="tim_5_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 5</h4>
+                    <p>Buka monitor Tim 5</p>
+                </a>
+                <a href="tim_6_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 6</h4>
+                    <p>Buka monitor Tim 6</p>
+                </a>
+                <a href="tim_7_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 7</h4>
+                    <p>Buka monitor Tim 7</p>
+                </a>
+                <a href="tim_8_v3.html" class="team-card" style="text-decoration: none;">
+                    <h4>Tim 8</h4>
+                    <p>Buka monitor Tim 8</p>
+                </a>
             </div>
         </section>
     </main>
-
-    <!-- Modal Pilih Tim -->
-    <div id="teamModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Pilih Tim untuk Pengujian</h3>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="modalTeamsList" class="modal-teams-list">
-                    <div class="loading">Memuat...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Export CSV -->
-    <div id="exportModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Export Data ke CSV</h3>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>Pilih tim untuk mengekspor data hasil uji:</p>
-                <div id="exportTeamsList" class="modal-teams-list">
-                    <div class="loading">Memuat...</div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <footer>
         <p>&copy; 2025 Universitas Negeri Yogyakarta. Sistem Detector Getaran Meja Getar.</p>
     </footer>
 
-    <script src="script.js"></script>
-</body>
+    </body>
 </html>

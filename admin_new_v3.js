@@ -10,6 +10,7 @@ let chartsLantai10 = {};
 
 // Timer
 let timerInterval = null;
+let remainingSeconds = 60;
 let elapsedSeconds = 0;
 let currentSessionId = null;
 let currentFrequency = null;
@@ -426,7 +427,10 @@ async function startRecording() {
             currentSessionId = result.session_id;
             currentFrequency = frequency.toFixed(1);
             isRecording = true;
-            elapsedSeconds = 0;
+            
+            // --- LOGIKA TIMER BARU ---
+            remainingSeconds = 60; // Set hitung mundur
+            updateTimerDisplay(); // Tampilkan 01:00
             
             // UI changes
             document.getElementById('startBtn').style.display = 'none';
@@ -435,12 +439,12 @@ async function startRecording() {
             
             // Start timer
             timerInterval = setInterval(() => {
-                elapsedSeconds++;
+                remainingSeconds--;
                 updateTimerDisplay();
                 
-                // Auto-stop at 60 seconds
-                if (elapsedSeconds >= 60) {
-                    stopRecording(true);
+                // Auto-stop at 0
+                if (remainingSeconds <= 0) {
+                    stopRecording(true); // Kirim true untuk auto-stopped
                 }
             }, 1000);
             
@@ -455,8 +459,9 @@ async function startRecording() {
 }
 
 async function stopRecording(autoStopped = false) {
-    if (!isRecording) return;
+    if (!isRecording && !autoStopped) return; // Jangan stop jika sudah stop, kecuali auto-stop
     
+    isRecording = false;
     clearInterval(timerInterval);
     
     try {
@@ -472,15 +477,17 @@ async function stopRecording(autoStopped = false) {
         const result = await response.json();
         
         if (result.status === 'success') {
-            isRecording = false;
-            
             // UI reset
             document.getElementById('startBtn').style.display = 'inline-flex';
             document.getElementById('stopBtn').style.display = 'none';
             document.getElementById('frequencySelect').disabled = false;
             
+            // Reset timer display ke 01:00 (60 detik)
+            remainingSeconds = 60;
+            updateTimerDisplay();
+            
             const stopType = autoStopped ? 'Auto-stopped' : 'Manually stopped';
-            console.log(`${stopType} recording: Session ${currentSessionId}, Duration: ${elapsedSeconds}s`);
+            console.log(`${stopType} recording: Session ${currentSessionId}`);
             
             if (autoStopped) {
                 alert(`Session ${currentFrequency} Hz selesai (60 detik). Silakan pilih frekuensi berikutnya.`);
@@ -492,8 +499,9 @@ async function stopRecording(autoStopped = false) {
 }
 
 function updateTimerDisplay() {
-    const minutes = Math.floor(elapsedSeconds / 60);
-    const seconds = elapsedSeconds % 60;
+    // Logika untuk menampilkan 60-0
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
     document.getElementById('timerDisplay').textContent = 
         `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }

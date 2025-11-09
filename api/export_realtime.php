@@ -7,6 +7,8 @@
  * Return: CSV file download
  */
 
+error_reporting(0);
+
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="realtime_data_' . date('Y-m-d_His') . '.csv"');
 
@@ -45,6 +47,10 @@ try {
     
     // Output CSV header
     $output = fopen('php://output', 'w');
+
+    ob_clean(); // <-- TAMBAHKAN INI
+    flush();
+    
     fputcsv($output, [
         'Laptop_ID',
         'Team_Name',
