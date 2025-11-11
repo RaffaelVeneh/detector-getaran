@@ -22,12 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 $frequency = isset($input['frequency']) ? (float)$input['frequency'] : null;
+$category = isset($input['category']) ? $input['category'] : 'baja';
 
 if (!$frequency || !in_array($frequency, [1.5, 2.5, 3.5, 4.5, 5.5])) {
     http_response_code(400);
     echo json_encode([
         'status' => 'error',
         'message' => 'Invalid frequency. Must be 1.5, 2.5, 3.5, 4.5, or 5.5'
+    ]);
+    exit;
+}
+
+if (!in_array($category, ['baja', 'beton'])) {
+    http_response_code(400);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Invalid category. Must be baja or beton'
     ]);
     exit;
 }
@@ -42,9 +52,9 @@ try {
     }
     
     // Create new session
-    $insert_query = "INSERT INTO sessions (frequency, started_at, status) VALUES (?, NOW(), 'running')";
+    $insert_query = "INSERT INTO sessions (frequency, category, started_at, status) VALUES (?, ?, NOW(), 'running')";
     $stmt = $conn->prepare($insert_query);
-    $stmt->bind_param('d', $frequency);
+    $stmt->bind_param('ds', $frequency, $category);
     
     if (!$stmt->execute()) {
         throw new Exception("Failed to create session: " . $stmt->error);
@@ -69,6 +79,7 @@ try {
         'message' => 'Timer started',
         'session_id' => $session_id,
         'frequency' => $frequency,
+        'category' => $category,
         'started_at' => date('Y-m-d H:i:s')
     ], JSON_PRETTY_PRINT);
     

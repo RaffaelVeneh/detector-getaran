@@ -18,6 +18,7 @@ try {
     $query = "SELECT 
                 t.laptop_id,
                 t.nama_tim as Team_Name,
+                t.category as Category,
                 s.frequency as Frequency,
                 rd.relative_time as Waktu_Detik,
                 rd.dista as Realtime_Disp_A,
@@ -30,7 +31,7 @@ try {
                 s.stopped_at
               FROM sessions s
               INNER JOIN realtime_data rd ON s.id = rd.session_id
-              INNER JOIN teams t ON rd.laptop_id = t.laptop_id
+              INNER JOIN teams t ON rd.laptop_id = t.laptop_id AND t.category = s.category
               LEFT JOIN statistics st ON s.id = st.session_id AND t.laptop_id = st.laptop_id
               WHERE s.status IN ('stopped', 'completed')";
     
@@ -59,13 +60,11 @@ try {
     fputcsv($output, [
         'Laptop_ID',
         'Team_Name',
+        'Category',
         'Waktu_Detik',
-        'Avg_Disp_A_mm_per_s',
-        'Max_Disp_A_mm',
-        'Realtime_Disp_A_mm',
-        'Avg_Disp_B_mm_per_s',
-        'Max_Disp_B_mm',
-        'Realtime_Disp_B_mm',
+        'Avg_Disp_Puncak_mm_per_s',
+        'Max_Disp_Puncak_mm',
+        'Realtime_Disp_Puncak_mm',
         'Frequency_Hz',
         'Started_At',
         'Stopped_At'
@@ -81,10 +80,8 @@ try {
         fputcsv($output, [
             $row['laptop_id'],
             $row['Team_Name'],
+            $row['Category'],
             $time_formatted,
-            number_format($row['Avg_Disp_A'] ?? 0, 4),
-            number_format($row['Max_Disp_A'] ?? 0, 4),
-            number_format($row['Realtime_Disp_A'], 4),
             number_format($row['Avg_Disp_B'] ?? 0, 4),
             number_format($row['Max_Disp_B'] ?? 0, 4),
             number_format($row['Realtime_Disp_B'], 4),

@@ -32,6 +32,14 @@
                     <div class="timer-label">Timer (MM:SS)</div>
                 </div>
                 
+                <div class="category-selector">
+                    <label for="categorySelect">Kategori:</label>
+                    <select id="categorySelect">
+                        <option value="baja">Baja</option>
+                        <option value="beton">Beton</option>
+                    </select>
+                </div>
+                
                 <div class="frequency-selector">
                     <label for="frequencySelect">Frekuensi:</label>
                     <select id="frequencySelect">
@@ -45,9 +53,6 @@
                 
                 <div class="timer-buttons">
                     <button class="btn btn-success" id="startBtn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                        </svg>
                         Mulai Rekaman
                     </button>
                     <button class="btn btn-danger" id="stopBtn" style="display:none;">
@@ -55,6 +60,21 @@
                             <rect x="6" y="6" width="12" height="12"></rect>
                         </svg>
                         Stop Rekaman
+                    </button>
+                    <button class="btn btn-warning" id="freezeDataBtn" style="margin-left: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7v5c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5z"></path>
+                        </svg>
+                        Freeze All Data
+                    </button>
+                    <button class="btn btn-danger" id="clearDataBtn" style="margin-left: 10px; background-color: #dc3545;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Clear All Data
                     </button>
                 </div>
             </div>
@@ -68,14 +88,10 @@
                     <thead>
                         <tr>
                             <th>Tim</th>
-                            <th colspan="3">Lantai 3 (Displacement A)</th>
-                            <th colspan="3">Lantai 10 (Displacement B)</th>
+                            <th colspan="3">Displacement Puncak</th>
                         </tr>
                         <tr>
                             <th></th>
-                            <th>Realtime</th>
-                            <th>Max</th>
-                            <th>Avg</th>
                             <th>Realtime</th>
                             <th>Max</th>
                             <th>Avg</th>
@@ -88,87 +104,50 @@
             </div>
         </section>
 
-        <!-- Graphs Section - Lantai 3 -->
+        <!-- Graphs Section - Single Column (Displacement Puncak Only) -->
         <section class="graphs-section-multi">
-            <h3>Grafik Lantai 3 (8 Tim Overlay - 5 Frekuensi)</h3>
-            <p class="graph-subtitle">Transparansi 20% untuk semua spike | Max displacement highlighted 100% dengan label tim</p>
+            <h3>Grafik Displacement Puncak - 8 Tim Overlay - 5 Frekuensi</h3>
             
-            <div class="multi-freq-container">
-                <div class="freq-row">
-                    <div class="freq-label">1.5 Hz</div>
+            <div class="graphs-single-column">
+                <h3 class="column-title">Displacement Puncak - 8 Tim Overlay</h3>
+                
+                <!-- 1.5 Hz -->
+                <div class="freq-card">
+                    <div class="freq-label-card">1.5 Hz</div>
                     <div class="chart-container-multi">
-                        <canvas id="chartLantai3_Freq15"></canvas>
+                        <canvas id="chartPuncak_Freq15"></canvas>
                     </div>
                 </div>
                 
-                <div class="freq-row">
-                    <div class="freq-label">2.5 Hz</div>
+                <!-- 2.5 Hz -->
+                <div class="freq-card">
+                    <div class="freq-label-card">2.5 Hz</div>
                     <div class="chart-container-multi">
-                        <canvas id="chartLantai3_Freq25"></canvas>
+                        <canvas id="chartPuncak_Freq25"></canvas>
                     </div>
                 </div>
                 
-                <div class="freq-row">
-                    <div class="freq-label">3.5 Hz</div>
+                <!-- 3.5 Hz -->
+                <div class="freq-card">
+                    <div class="freq-label-card">3.5 Hz</div>
                     <div class="chart-container-multi">
-                        <canvas id="chartLantai3_Freq35"></canvas>
+                        <canvas id="chartPuncak_Freq35"></canvas>
                     </div>
                 </div>
                 
-                <div class="freq-row">
-                    <div class="freq-label">4.5 Hz</div>
+                <!-- 4.5 Hz -->
+                <div class="freq-card">
+                    <div class="freq-label-card">4.5 Hz</div>
                     <div class="chart-container-multi">
-                        <canvas id="chartLantai3_Freq45"></canvas>
+                        <canvas id="chartPuncak_Freq45"></canvas>
                     </div>
                 </div>
                 
-                <div class="freq-row">
-                    <div class="freq-label">5.5 Hz</div>
+                <!-- 5.5 Hz -->
+                <div class="freq-card">
+                    <div class="freq-label-card">5.5 Hz</div>
                     <div class="chart-container-multi">
-                        <canvas id="chartLantai3_Freq55"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Graphs Section - Lantai 10 -->
-        <section class="graphs-section-multi">
-            <h3>Grafik Lantai 10 (8 Tim Overlay - 5 Frekuensi)</h3>
-            <p class="graph-subtitle">Transparansi 20% untuk semua spike | Max displacement highlighted 100% dengan label tim</p>
-            
-            <div class="multi-freq-container">
-                <div class="freq-row">
-                    <div class="freq-label">1.5 Hz</div>
-                    <div class="chart-container-multi">
-                        <canvas id="chartLantai10_Freq15"></canvas>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">2.5 Hz</div>
-                    <div class="chart-container-multi">
-                        <canvas id="chartLantai10_Freq25"></canvas>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">3.5 Hz</div>
-                    <div class="chart-container-multi">
-                        <canvas id="chartLantai10_Freq35"></canvas>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">4.5 Hz</div>
-                    <div class="chart-container-multi">
-                        <canvas id="chartLantai10_Freq45"></canvas>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">5.5 Hz</div>
-                    <div class="chart-container-multi">
-                        <canvas id="chartLantai10_Freq55"></canvas>
+                        <canvas id="chartPuncak_Freq55"></canvas>
                     </div>
                 </div>
             </div>

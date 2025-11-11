@@ -30,6 +30,10 @@
         <!-- Session Info Bar -->
         <section class="session-info-bar">
             <div class="session-info-item">
+                <label>Kategori:</label>
+                <span id="categoryLabel" style="font-weight: bold; color: #2563eb;">Baja</span>
+            </div>
+            <div class="session-info-item">
                 <label>Frekuensi Aktif:</label>
                 <span id="currentFrequency">-</span>
             </div>
@@ -43,29 +47,30 @@
             </div>
         </section>
 
-        <!-- Graphs Section - Lantai 3 -->
-        <section class="graphs-section-multi">
-            <h3>Grafik Lantai 3 (Displacement A) - 5 Frekuensi</h3>
-            <p class="graph-subtitle">Data real-time untuk Tim 7</p>
-            
-            <div class="multi-freq-container">
+        <!-- Graphs Section - Single Column -->
+        <div class="graphs-single-column-wrapper">
+            <section class="graphs-section-multi">
+                <h3>Displacement Puncak</h3>
+                <p class="graph-subtitle">5 Frekuensi - Data real-time untuk Tim 7</p>
+                
+                <div class="multi-freq-container">
                 <div class="freq-row">
                     <div class="freq-label">1.5 Hz</div>
                     <div class="chart-container-multi-user">
-                        <canvas id="chartLantai3_Freq15"></canvas>
+                        <canvas id="chartPuncak_Freq15"></canvas>
                     </div>
                     <div class="freq-stats">
                         <div class="freq-stat-item">
                             <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime3_15">0.00 mm</span>
+                            <span class="stat-value" id="realtimePuncak_15">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max3_15">0.00 mm</span>
+                            <span class="stat-value" id="maxPuncak_15">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg3_15">0.00 mm/s</span>
+                            <span class="stat-value" id="avgPuncak_15">0.00 mm/s</span>
                         </div>
                     </div>
                 </div>
@@ -73,20 +78,20 @@
                 <div class="freq-row">
                     <div class="freq-label">2.5 Hz</div>
                     <div class="chart-container-multi-user">
-                        <canvas id="chartLantai3_Freq25"></canvas>
+                        <canvas id="chartPuncak_Freq25"></canvas>
                     </div>
                     <div class="freq-stats">
                         <div class="freq-stat-item">
                             <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime3_25">0.00 mm</span>
+                            <span class="stat-value" id="realtimePuncak_25">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max3_25">0.00 mm</span>
+                            <span class="stat-value" id="maxPuncak_25">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg3_25">0.00 mm/s</span>
+                            <span class="stat-value" id="avgPuncak_25">0.00 mm/s</span>
                         </div>
                     </div>
                 </div>
@@ -94,20 +99,20 @@
                 <div class="freq-row">
                     <div class="freq-label">3.5 Hz</div>
                     <div class="chart-container-multi-user">
-                        <canvas id="chartLantai3_Freq35"></canvas>
+                        <canvas id="chartPuncak_Freq35"></canvas>
                     </div>
                     <div class="freq-stats">
                         <div class="freq-stat-item">
                             <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime3_35">0.00 mm</span>
+                            <span class="stat-value" id="realtimePuncak_35">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max3_35">0.00 mm</span>
+                            <span class="stat-value" id="maxPuncak_35">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg3_35">0.00 mm/s</span>
+                            <span class="stat-value" id="avgPuncak_35">0.00 mm/s</span>
                         </div>
                     </div>
                 </div>
@@ -115,20 +120,20 @@
                 <div class="freq-row">
                     <div class="freq-label">4.5 Hz</div>
                     <div class="chart-container-multi-user">
-                        <canvas id="chartLantai3_Freq45"></canvas>
+                        <canvas id="chartPuncak_Freq45"></canvas>
                     </div>
                     <div class="freq-stats">
                         <div class="freq-stat-item">
                             <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime3_45">0.00 mm</span>
+                            <span class="stat-value" id="realtimePuncak_45">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max3_45">0.00 mm</span>
+                            <span class="stat-value" id="maxPuncak_45">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg3_45">0.00 mm/s</span>
+                            <span class="stat-value" id="avgPuncak_45">0.00 mm/s</span>
                         </div>
                     </div>
                 </div>
@@ -136,138 +141,26 @@
                 <div class="freq-row">
                     <div class="freq-label">5.5 Hz</div>
                     <div class="chart-container-multi-user">
-                        <canvas id="chartLantai3_Freq55"></canvas>
+                        <canvas id="chartPuncak_Freq55"></canvas>
                     </div>
                     <div class="freq-stats">
                         <div class="freq-stat-item">
                             <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime3_55">0.00 mm</span>
+                            <span class="stat-value" id="realtimePuncak_55">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max3_55">0.00 mm</span>
+                            <span class="stat-value" id="maxPuncak_55">0.00 mm</span>
                         </div>
                         <div class="freq-stat-item">
                             <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg3_55">0.00 mm/s</span>
+                            <span class="stat-value" id="avgPuncak_55">0.00 mm/s</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Graphs Section - Lantai 10 -->
-        <section class="graphs-section-multi">
-            <h3>Grafik Lantai 10 (Displacement B) - 5 Frekuensi</h3>
-            <p class="graph-subtitle">Data real-time untuk Tim 7</p>
-            
-            <div class="multi-freq-container">
-                <div class="freq-row">
-                    <div class="freq-label">1.5 Hz</div>
-                    <div class="chart-container-multi-user">
-                        <canvas id="chartLantai10_Freq15"></canvas>
-                    </div>
-                    <div class="freq-stats">
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime10_15">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max10_15">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg10_15">0.00 mm/s</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">2.5 Hz</div>
-                    <div class="chart-container-multi-user">
-                        <canvas id="chartLantai10_Freq25"></canvas>
-                    </div>
-                    <div class="freq-stats">
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime10_25">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max10_25">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg10_25">0.00 mm/s</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">3.5 Hz</div>
-                    <div class="chart-container-multi-user">
-                        <canvas id="chartLantai10_Freq35"></canvas>
-                    </div>
-                    <div class="freq-stats">
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime10_35">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max10_35">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg10_35">0.00 mm/s</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">4.5 Hz</div>
-                    <div class="chart-container-multi-user">
-                        <canvas id="chartLantai10_Freq45"></canvas>
-                    </div>
-                    <div class="freq-stats">
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime10_45">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max10_45">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg10_45">0.00 mm/s</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="freq-row">
-                    <div class="freq-label">5.5 Hz</div>
-                    <div class="chart-container-multi-user">
-                        <canvas id="chartLantai10_Freq55"></canvas>
-                    </div>
-                    <div class="freq-stats">
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Realtime:</span>
-                            <span class="stat-value" id="realtime10_55">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Max:</span>
-                            <span class="stat-value" id="max10_55">0.00 mm</span>
-                        </div>
-                        <div class="freq-stat-item">
-                            <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="avg10_55">0.00 mm/s</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
         <!-- Export Section -->
         <section class="export-section">
@@ -300,4 +193,3 @@
     <script src="tim_client_v3.js"></script>
 </body>
 </html>
-

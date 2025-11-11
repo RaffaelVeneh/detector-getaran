@@ -900,31 +900,31 @@ footer {
 /* Timer Control Section (Admin) */
 .timer-control-section {
     background: white;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .timer-control-section h3 {
     color: #1e40af;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
     border-bottom: 3px solid #3b82f6;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
 }
 
 .timer-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 1.5rem;
     flex-wrap: wrap;
 }
 
 .timer-display-admin {
     background: #f8f9fa;
-    padding: 1.5rem 3rem;
+    padding: 1.25rem 2.5rem;
     border-radius: 12px;
     text-align: center;
 }
@@ -979,18 +979,18 @@ footer {
 /* Stats Table Section (Admin) */
 .stats-table-section {
     background: white;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .stats-table-section h3 {
     color: #1e40af;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
     border-bottom: 3px solid #3b82f6;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
 }
 
 .stats-table {
@@ -1008,7 +1008,7 @@ footer {
 
 .stats-table th,
 .stats-table td {
-    padding: 1rem;
+    padding: 0.75rem;
     text-align: center;
 }
 
@@ -1050,14 +1050,17 @@ footer {
 
 .chart-container-admin {
     background: #f8f9fa;
-    padding: 2rem;
+    padding: 2rem 1.5rem;  /* Padding lebih compact */
     border-radius: 12px;
-    height: 500px;
+    height: 700px;  /* Diperbesar ke 700px untuk space label Y-axis */
+    min-height: 700px;
     margin-bottom: 1.5rem;
 }
 
 .chart-container-admin canvas {
-    max-height: 100%;
+    max-height: 100% !important;
+    height: 100% !important;  /* Force canvas mengikuti container */
+    width: 100% !important;
 }
 
 /* Frequency Tabs (Tim Pages) */
@@ -1147,11 +1150,14 @@ footer {
     background: #f8f9fa;
     padding: 1.5rem;
     border-radius: 12px;
-    height: 400px;
+    height: 600px;  /* Diperbesar lagi ke 600px agar label tidak berdempetan */
+    min-height: 600px;
 }
 
 .chart-container-tim canvas {
-    max-height: 100%;
+    max-height: 100% !important;
+    height: 100% !important;  /* Force canvas mengikuti container */
+    width: 100% !important;
 }
 
 /* Export Section (Tim Pages) */
@@ -1179,11 +1185,11 @@ footer {
 /* Legend Item (Admin Stacked Charts) */
 .legend-container {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 1rem;
-    padding: 1rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
     background: #f8f9fa;
     border-radius: 8px;
 }
@@ -1249,39 +1255,52 @@ footer {
 }
 
 /* ===== V3 MULTI-FREQUENCY LAYOUT ===== */
-.graphs-section-multi {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+/* Two Column Wrapper for Lantai 3 & 10 */
+.graphs-two-column-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
+/* Single Column Wrapper for Displacement Puncak Only */
+.graphs-single-column-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+}
+
+.graphs-section-multi {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .graphs-section-multi h3 {
-    color: #1e40af;
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 1.3rem;
 }
 
 .graph-subtitle {
     color: #64748b;
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
     font-style: italic;
 }
 
 .multi-freq-container {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .freq-row {
     display: grid;
-    grid-template-columns: 80px 1fr 300px;
-    gap: 1rem;
+    grid-template-columns: 70px 1fr 0p;
+    gap: 0.75rem;
     align-items: center;
-    padding: 1rem;
+    padding: 0.75rem;
     background: #f8fafc;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
@@ -1289,18 +1308,24 @@ footer {
 
 .freq-label {
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: #1e40af;
     text-align: center;
-    padding: 0.5rem;
+    padding: 0.4rem;
     background: white;
     border-radius: 6px;
     border: 2px solid #1e40af;
 }
 
 .chart-container-multi {
-    height: 250px;
+    height: 450px;  /* Diperbesar dari 250px ke 450px untuk label Y-axis */
     position: relative;
+    margin-top: 1rem;  /* Gap antara legend dan grafik */
+}
+
+.chart-container-multi canvas {
+    height: 100% !important;
+    width: 100% !important;
 }
 
 .chart-container-multi-user {
@@ -1320,6 +1345,62 @@ footer {
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
+}
+
+/* 2-Column Layout: Left (Lantai 3), Right (Lantai 10) */
+.graphs-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.column-left,
+.column-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0; /* Prevent overflow */
+    width: 100%;
+}
+
+.column-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    border-radius: 8px;
+    margin: 0 0 1rem 0;
+    box-shadow: 0 4px 6px rgba(30, 64, 175, 0.2);
+}
+
+.freq-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-height: 550px;  /* Perbesar agar chart lebih lega */
+}
+
+.freq-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.freq-label-card {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1e40af;
+    text-align: center;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 6px;
+    border: 2px solid #1e40af;
+    margin-bottom: 1rem;
 }
 
 .freq-stat-item .stat-label {
@@ -1385,7 +1466,19 @@ footer {
     50% { opacity: 0.5; }
 }
 
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 /* Responsive adjustments for multi-freq layout */
+@media (max-width: 1400px) {
+    .graphs-two-column-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
 @media (max-width: 1200px) {
     .freq-row {
         grid-template-columns: 70px 1fr 250px;
@@ -1409,7 +1502,7 @@ footer {
     }
     
     .chart-container-multi {
-        height: 200px;
+        height: 350px;  /* Responsive: tetap lebih tinggi untuk label */
     }
     
     .chart-container-multi-user {

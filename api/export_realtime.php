@@ -20,6 +20,7 @@ try {
     $query = "SELECT 
                 t.laptop_id,
                 t.nama_tim as Team_Name,
+                t.category as Category,
                 rd.timestamp as Timestamp,
                 rd.dista as Realtime_Disp_A,
                 rd.distb as Realtime_Disp_B,
@@ -29,8 +30,8 @@ try {
                 st.avg_dista as Avg_Disp_A,
                 st.avg_distb as Avg_Disp_B
               FROM realtime_data rd
-              INNER JOIN teams t ON rd.laptop_id = t.laptop_id
               LEFT JOIN sessions s ON rd.session_id = s.id
+              INNER JOIN teams t ON rd.laptop_id = t.laptop_id AND (s.category IS NULL OR t.category = s.category)
               LEFT JOIN statistics st ON s.id = st.session_id AND t.laptop_id = st.laptop_id";
     
     if ($laptop_id) {
@@ -54,13 +55,11 @@ try {
     fputcsv($output, [
         'Laptop_ID',
         'Team_Name',
+        'Category',
         'Timestamp',
-        'Realtime_Disp_A_mm',
-        'Max_Disp_A_mm',
-        'Avg_Disp_A_mm_per_s',
-        'Realtime_Disp_B_mm',
-        'Max_Disp_B_mm',
-        'Avg_Disp_B_mm_per_s',
+        'Realtime_Disp_Puncak_mm',
+        'Max_Disp_Puncak_mm',
+        'Avg_Disp_Puncak_mm_per_s',
         'Frequency_Hz'
     ]);
     
@@ -69,10 +68,8 @@ try {
         fputcsv($output, [
             $row['laptop_id'],
             $row['Team_Name'],
+            $row['Category'],
             $row['Timestamp'],
-            number_format($row['Realtime_Disp_A'], 4),
-            number_format($row['Max_Disp_A'] ?? 0, 4),
-            number_format($row['Avg_Disp_A'] ?? 0, 4),
             number_format($row['Realtime_Disp_B'], 4),
             number_format($row['Max_Disp_B'] ?? 0, 4),
             number_format($row['Avg_Disp_B'] ?? 0, 4),

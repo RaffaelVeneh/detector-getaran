@@ -126,11 +126,14 @@ try {
         'timestamp' => date('Y-m-d H:i:s'),
         'team' => [
             'laptop_id' => (int)$team['laptop_id'],
-            'nama_tim' => $team['nama_tim']
+            'nama_tim' => $team['nama_tim'],
+            'category' => $team['category']
         ],
         'current_session' => $current_session ? [
             'id' => (int)$current_session['id'],
             'frequency' => (float)$current_session['frequency'],
+            'category' => $current_session['category'],
+            'status' => 'running',
             'started_at' => $current_session['started_at'],
             'elapsed' => time() - strtotime($current_session['started_at'])
         ] : null,

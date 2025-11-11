@@ -67,8 +67,8 @@ CREATE TABLE statistics (
     laptop_id INT NOT NULL,
     max_dista DECIMAL(10,4) DEFAULT 0,
     max_distb DECIMAL(10,4) DEFAULT 0,
-    avg_dista DECIMAL(10,4) DEFAULT 0 COMMENT 'mm/s',
-    avg_distb DECIMAL(10,4) DEFAULT 0 COMMENT 'mm/s',
+    avg_dista DECIMAL(10,4) DEFAULT 0 COMMENT 'mm (average displacement)',
+    avg_distb DECIMAL(10,4) DEFAULT 0 COMMENT 'mm (average displacement)',
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unique_session_laptop (session_id, laptop_id),
     FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
@@ -125,7 +125,6 @@ BEGIN
     DECLARE v_max_distb DECIMAL(10,4);
     DECLARE v_avg_dista DECIMAL(10,4);
     DECLARE v_avg_distb DECIMAL(10,4);
-    DECLARE v_duration DECIMAL(10,3);
     
     -- Hitung max displacement
     SELECT 
@@ -135,21 +134,15 @@ BEGIN
     FROM realtime_data
     WHERE session_id = p_session_id AND laptop_id = p_laptop_id;
     
-    -- Hitung average displacement (mm/s)
+    -- Hitung average displacement (mm)
+    -- Average = SUM / COUNT (bukan SUM / waktu)
     SELECT 
-        IFNULL(MAX(relative_time), 1)
-    INTO v_duration
-    FROM realtime_data
-    WHERE session_id = p_session_id AND laptop_id = p_laptop_id;
-    
-    SELECT 
-        IFNULL(SUM(ABS(dista)) / v_duration, 0),
-        IFNULL(SUM(ABS(distb)) / v_duration, 0)
+        IFNULL(AVG(ABS(dista)), 0),
+        IFNULL(AVG(ABS(distb)), 0)
     INTO v_avg_dista, v_avg_distb
     FROM realtime_data
     WHERE session_id = p_session_id 
-      AND laptop_id = p_laptop_id
-      AND ABS(dista) > 2 OR ABS(distb) > 2; -- Hanya hitung simpangan > 2mm
+      AND laptop_id = p_laptop_id;
     
     -- Insert or update statistics
     INSERT INTO statistics (session_id, laptop_id, max_dista, max_distb, avg_dista, avg_distb)

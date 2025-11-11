@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API Camera Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-box {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test API receive_camera_data.php</h1>
+    
+    <div class="test-box">
+        <h2>Test Data</h2>
+        <pre id="testData"></pre>
+        <button onclick="testAPI()">🚀 Test API Connection</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        const testData = {
+            laptop_id: 1,
+            dista: 10.5,
+            distb: 15.2,
+            is_a_detected: true,
+            is_b_detected: true
+        };
+        
+        document.getElementById('testData').textContent = JSON.stringify(testData, null, 2);
+        
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="result info">⏳ Sending request...</div>';
+            
+            try {
+                const response = await fetch('/detector-getaran/api/receive_camera_data.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const responseText = await response.text();
+                let responseData;
+                
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error('Response is not JSON: ' + responseText);
+                }
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ SUCCESS!</h3>
+                            <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                            <p><strong>Response:</strong></p>
+                            <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                            <hr>
+                            <p>✅ API berfungsi normal!</p>
+                            <p>✅ Server bisa menerima data dari camera</p>
+                            <p>✅ Mode: <strong>${responseData.mode || 'unknown'}</strong></p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ API Error</h3>
+                            <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                            <p><strong>Error:</strong></p>
+                            <pre>${JSON.stringify(responseData, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Connection Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <hr>
+                        <p><strong>Troubleshooting:</strong></p>
+                        <ul>
+                            <li>Pastikan Laragon running</li>
+                            <li>Cek file receive_camera_data.php ada error PHP</li>
+                            <li>Buka Console (F12) untuk detail error</li>
+                        </ul>
+                    </div>
+                `;
+                console.error('Full error:', error);
+            }
+        }
+        
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('Page loaded. Click button to test API.');
+        });
+    </script>
+</body>
+</html>
