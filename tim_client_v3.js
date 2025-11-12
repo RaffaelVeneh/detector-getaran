@@ -292,6 +292,20 @@ function connectWebSocket() {
                 return;
             }
             
+            // Handle realtime_saving_started event
+            if (message.type === 'realtime_saving_started') {
+                console.log('💾 Realtime saving STARTED by admin');
+                updateRealtimeSavingIndicator(true);
+                return;
+            }
+            
+            // Handle realtime_saving_stopped event
+            if (message.type === 'realtime_saving_stopped') {
+                console.log('🚫 Realtime saving STOPPED by admin');
+                updateRealtimeSavingIndicator(false);
+                return;
+            }
+            
             // Handle freeze_data event (dari admin)
             if (message.type === 'freeze_data') {
                 dataFrozen = message.frozen;
@@ -551,12 +565,6 @@ function handleNewData(data) {
     }
     
     const freq = String(data.frequency);
-    
-    // Validasi: pastikan frekuensi dari data sesuai dengan session aktif
-    if (sessionActive && freq !== currentFrequency) {
-        console.warn(`⚠️ Data frequency mismatch: received ${freq} Hz, expected ${currentFrequency} Hz`);
-        // Masih simpan data untuk frekuensi tersebut, tapi ini indikasi ada masalah sync
-    }
     
     // Tambahkan ke struktur data (simple structure)
     if (dataByFreq[freq]) {
@@ -852,6 +860,19 @@ function updateCategoryDisplay(category) {
     });
 }
 
+function updateRealtimeSavingIndicator(isActive) {
+    const indicator = document.getElementById('realtimeSavingStatus');
+    if (indicator) {
+        if (isActive) {
+            indicator.textContent = 'Aktif';
+            indicator.style.color = '#16a34a'; // Green
+        } else {
+            indicator.textContent = 'Tidak Aktif';
+            indicator.style.color = '#dc3545'; // Red
+        }
+    }
+}
+
 // Check if there's an active session (called after WebSocket connects or manually)
 // You can call this from console: checkActiveSession()
 async function checkActiveSession() {
@@ -898,9 +919,11 @@ async function loadTeamName(laptopId, category) {
             return;
         }
         
-        const teamNameEl = document.getElementById('teamName');
+        const teamNameEl = document.getElementById('teamNameDisplay');
         if (teamNameEl && data.nama_tim) {
-            teamNameEl.textContent = data.nama_tim;
+            // Format: "Tim X - Nama Tim"
+            teamNameEl.textContent = `Tim ${laptopId} - ${data.nama_tim}`;
+            console.log(`✅ Team name loaded: Tim ${laptopId} - ${data.nama_tim}`);
         }
     } catch (error) {
         console.error('Error loading team name:', error);
