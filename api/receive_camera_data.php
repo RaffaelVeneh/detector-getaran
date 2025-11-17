@@ -67,6 +67,37 @@ if ($laptop_id < 1 || $laptop_id > 8) {
     exit;
 }
 
+// ========================================
+// CEK REALTIME SAVING FLAG - PALING AWAL!
+// Jika toggle OFF, REJECT data sepenuhnya
+// ========================================
+$flag_file = __DIR__ . '/../temp/realtime_save_flag.json';
+$realtime_enabled = false; // Default: OFF
+
+if (file_exists($flag_file)) {
+    $flag_data = json_decode(file_get_contents($flag_file), true);
+    if ($flag_data && isset($flag_data['enabled'])) {
+        $realtime_enabled = $flag_data['enabled'];
+    }
+}
+
+// Jika realtime saving TIDAK aktif, REJECT data
+if (!$realtime_enabled) {
+    http_response_code(200); // Return 200 agar kamera tidak retry
+    echo json_encode([
+        'success' => false,
+        'message' => 'Data rejected - Realtime saving is disabled by admin',
+        'realtime_enabled' => false,
+        'laptop_id' => $laptop_id
+    ]);
+    error_log("Data REJECTED from laptop_id=$laptop_id (realtime saving disabled)");
+    exit;
+}
+
+// ========================================
+// REALTIME ENABLED - PROSES DATA
+// ========================================
+
 // 1. CEK SESSION AKTIF (OPTIONAL - boleh ada atau tidak)
 $query_session = "SELECT id, category, frequency, started_at 
                   FROM sessions 
@@ -139,7 +170,8 @@ $is_b_detected = isset($data['is_b_detected']) ? boolval($data['is_b_detected'])
 $now = new DateTime();
 $timestamp = $now->format('Y-m-d H:i:s.u');
 
-// 5. INSERT KE DATABASE (tabel realtime_data)
+// 5. INSERT KE DATABASE
+// Jika sampai sini berarti realtime enabled (sudah dicek di atas)
 // session_id, frequency, relative_time bisa NULL kalau tidak ada session
 $insert_query = "INSERT INTO realtime_data 
                 (session_id, laptop_id, dista, distb, is_a_detected, is_b_detected, 
@@ -169,11 +201,13 @@ if (!$stmt->execute()) {
         'db_error' => $stmt->error,
         'debug' => [
             'relative_time' => $relative_time,
-            'session_id' => $session_id,
-            'interval' => $interval
-        ]
-    ]);
-    exit;
+            'session_id' => $session_id
+            ]
+        ]);
+        exit;
+    }
+    
+    error_log("Data saved to database: laptop_id=$laptop_id, session_id=$session_id, realtime_enabled=true");
 }
 
 // 6. BROADCAST KE WEBSOCKET SERVER
@@ -223,6 +257,8 @@ echo json_encode([
     'success' => true,
     'message' => 'Data received and stored',
     'mode' => $session_mode ? 'recording' : 'free',  // Informasi mode
+    'realtime_enabled' => true,  // Pasti true kalau sampai sini
+    'saved_to_database' => true,  // Pasti true kalau sampai sini
     'data' => [
         // Data original dari kamera
         'laptop_id' => $laptop_id,

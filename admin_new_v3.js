@@ -16,6 +16,9 @@ let currentFrequency = null;
 let currentCategory = 'baja'; // Default: Baja
 let isRecording = false;
 
+// Realtime saving state - admin controls whether data is saved to database
+let isRealtimeSaving = false;
+
 // Freeze state - admin controls freeze for all clients
 let dataFrozenGlobal = false;
 let frozenSnapshot = null;
@@ -658,6 +661,7 @@ function updateStatsTable() {
 function setupEventListeners() {
     document.getElementById('startBtn').addEventListener('click', startRecording);
     document.getElementById('stopBtn').addEventListener('click', stopRecording);
+    document.getElementById('toggleRealtimeSaveBtn').addEventListener('click', toggleRealtimeSaving);
     document.getElementById('exportRealtimeBtn').addEventListener('click', exportRealtime);
     document.getElementById('exportSessionBtn').addEventListener('click', exportSession);
     document.getElementById('freezeDataBtn').addEventListener('click', toggleFreezeData);
@@ -995,6 +999,9 @@ async function stopRecording(autoStopped = false) {
             document.getElementById('categorySelect').disabled = false;  // Enable category
             document.getElementById('frequencySelect').disabled = false;
             
+            // TIDAK auto-stop realtime saving - keduanya independen
+            // User harus manual stop realtime jika mau
+            
             // Reset timer display ke 00:00
             elapsedSeconds = 0;
             updateTimerDisplay();
@@ -1017,6 +1024,100 @@ function updateTimerDisplay() {
     const seconds = elapsedSeconds % 60;
     document.getElementById('timerDisplay').textContent = 
         `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+// ===== REALTIME SAVING CONTROL =====
+async function toggleRealtimeSaving() {
+    const btn = document.getElementById('toggleRealtimeSaveBtn');
+    const btnText = document.getElementById('toggleRealtimeSaveText');
+    
+    if (!isRealtimeSaving) {
+        // Start realtime data flow
+        try {
+            // Build request body - session_id optional
+            const requestBody = { action: 'start' };
+            if (currentSessionId) {
+                requestBody.session_id = currentSessionId;
+            }
+            
+            const response = await fetch('/detector-getaran/api/toggle_realtime_save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                isRealtimeSaving = true;
+                btn.className = 'btn btn-danger';
+                btnText.textContent = 'Stop Data Realtime';
+                
+                // Broadcast to all clients
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'broadcast',
+                        message: {
+                            type: 'realtime_saving_started',
+                            session_id: currentSessionId || null,
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    console.log('✅ Broadcasted realtime_saving_started');
+                }
+                
+                console.log('✅ Realtime data flow started', currentSessionId ? `(session: ${currentSessionId})` : '(no session)');
+            } else {
+                alert('Error starting realtime save: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error starting realtime save:', error);
+            alert('Failed to start realtime save');
+        }
+    } else {
+        // Stop realtime data flow
+        try {
+            // Build request body - session_id optional
+            const requestBody = { action: 'stop' };
+            if (currentSessionId) {
+                requestBody.session_id = currentSessionId;
+            }
+            
+            const response = await fetch('/detector-getaran/api/toggle_realtime_save.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                isRealtimeSaving = false;
+                btn.className = 'btn btn-primary';
+                btnText.textContent = 'Mulai Data Realtime';
+                
+                // Broadcast to all clients
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        type: 'broadcast',
+                        message: {
+                            type: 'realtime_saving_stopped',
+                            session_id: currentSessionId || null,
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    console.log('✅ Broadcasted realtime_saving_stopped');
+                }
+                
+                console.log('✅ Realtime data flow stopped', currentSessionId ? `(session: ${currentSessionId})` : '(no session)');
+            } else {
+                alert('Error stopping realtime save: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error stopping realtime save:', error);
+            alert('Failed to stop realtime save');
+        }
+    }
 }
 
 // ===== EXPORT =====
