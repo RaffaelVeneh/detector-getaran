@@ -40,25 +40,25 @@ const teamColors = [
 
 // Team names per kategori (akan di-load dari API)
 let teamNamesBaja = [
-    'Institut Teknologi Nasional Malang_TRISHA ABINAWA',
-    'Universitas Negeri Malang_Warock',
     'Universitas Udayana_Abhipraya',
     'Politeknik Negeri Semarang_Tim Seismastha',
-    'Institut Teknologi Sepuluh Nopember_Askara Team',
     'Universitas Jember_Alvandaru Team',
+    'Politeknik Astra_Astura Team',
+    'Institut Teknologi Sepuluh Nopember_Askara Team',
+    'Institut Teknologi Nasional Malang_TRISHA ABINAWA',
     'Universitas Brawijaya_SRIKANDI',
-    'Politeknik Astra_Astura Team'
+    'Universitas Negeri Malang_Warock'
 ];
 
 let teamNamesBeton = [
-    'Universitas Negeri Yogyakarta_Sahakarya',
     'Politeknik Negeri Bandung_Wirajaya Palawiri',
-    'Politeknik Negeri Malang_Akral Baswara',
     'Universitas Warmadewa_EL-BADAK Wanskuy',
-    'Universitas Muhammadiyah Malang_AKTARA',
     'Institut Teknologi Sepuluh Nopember_Indestrukta Team',
-    'Universitas Negeri Jakarta_Astungkara',
-    'universitas Brawijaya_K-300'
+    'Universitas Muhammadiyah Malang_AKTARA',
+    'universitas Brawijaya_K-300',
+    'Universitas Negeri Yogyakarta_Sahakarya',
+    'Politeknik Negeri Malang_Akral Baswara',
+    'Universitas Negeri Jakarta_Astungkara'
 ];
 
 // Active team names (based on current category)

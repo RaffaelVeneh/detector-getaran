@@ -13,6 +13,39 @@ body {
     min-height: 100vh;
 }
 
+/* ===== FLOATING TIMER (Fixed di pojok kiri atas) ===== */
+.floating-timer {
+    position: fixed;
+    top:100px;
+    left: 20px;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(30, 64, 175, 0.3);
+    z-index: 9999;
+    text-align: center;
+    min-width: 180px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.floating-timer .timer-value {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: white;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    line-height: 1;
+}
+
+.floating-timer .timer-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 0.5rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
 /* ===== NAVBAR ===== */
 .navbar {
     background: #1e40af;
